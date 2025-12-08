@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Pocchim Charbata - User Panel</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+    <style>
+        body { 
+            background-color: #f0f2f5; 
+            font-family: 'Open Sans', sans-serif; 
+            padding-bottom: 80px; 
+            overflow-x: hidden;
+        }
+        
+        /* Header Design */
+        .header-bg {
+            background: linear-gradient(135deg, #0061ff, #60efff);
+            color: white; 
+            padding: 25px 20px 70px 20px;
+            border-radius: 0 0 25px 25px; 
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            position: relative;
+            margin-bottom: 50px;
+        }
+        .org-name {
+            font-family: 'Montserrat', sans-serif; 
+            font-weight: 800;
+            text-transform: uppercase; 
+            letter-spacing: 0.5px;
+            font-size: 1rem; 
+            margin-top: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .menu-btn {
+            position: absolute; 
+            top: 20px; 
+            right: 20px;
+            color: white; 
+            background: rgba(255,255,255,0.25);
+            border: none; 
+            padding: 8px 14px; 
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s;
+        }
+        .menu-btn:active { transform: scale(0.95); }
+        
+        /* Balance Card */
+        .balance-card {
+            background: white; 
+            margin: -60px 20px 20px 20px;
+            padding: 25px 20px; 
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.08); 
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+        .balance-label { font-size: 0.75rem; letter-spacing: 1px; color: #6c757d; font-weight: 700; text-transform: uppercase; }
+        .balance-amount { font-size: 2.5rem; font-weight: 800; color: #2c3e50; font-family: 'Montserrat', sans-serif; margin: 5px 0; }
+        .stats-row { font-size: 0.85rem; font-weight: 600; display: flex; justify-content: center; gap: 20px; }
+
+        /* Navigation List */
+        .nav-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 0 20px; margin-bottom: 20px; }
+        .nav-item-card {
+            background: white; border-radius: 15px; padding: 15px;
+            text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+            text-decoration: none; color: #2c3e50; transition: transform 0.2s;
+        }
+        .nav-item-card:active { transform: scale(0.98); }
+        .nav-icon { font-size: 1.8rem; margin-bottom: 10px; display: block; }
+        
+        /* Notice Card */
+        .latest-notice-card {
+            background: #fff8e1; border-left: 5px solid #ffc107;
+            margin: 0 20px 25px 20px; padding: 15px;
+            border-radius: 10px; cursor: pointer;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+        .notice-badge {
+            background: #ffc107; color: #000; font-size: 0.65rem;
+            padding: 3px 8px; border-radius: 6px; font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        /* Member List & Search */
+        .member-card {
+            background: white; margin: 0 0 12px 0; padding: 15px;
+            border-radius: 12px; border-left: 5px solid #0061ff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03); cursor: pointer;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .search-box {
+            border-radius: 50px; border: none; padding: 12px 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        /* Admin Info */
+        .admin-info-card {
+            background: white; border-radius: 20px; padding: 25px; margin: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center;
+        }
+        .admin-label { font-size: 0.75rem; color: #95a5a6; font-weight: 700; text-transform: uppercase; margin-top: 15px; }
+        .admin-value { font-size: 1.1rem; color: #2c3e50; font-weight: 700; word-break: break-all; }
+        
+        /* View Management */
+        .view-section { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .view-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div id="mainApp">
+        <!-- Header -->
+        <div class="header-bg">
+            <button class="menu-btn" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu">
+                <i class="fas fa-bars fa-lg"></i>
+            </button>
+            <div class="org-name">Pocchim Charbata Youth<br>Social Welfare Organization</div>
+            <small style="opacity: 0.8; font-size: 0.8rem;">User Panel</small>
+        </div>
+
+        <!-- Offcanvas Menu -->
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasMenu">
+            <div class="offcanvas-header bg-light">
+                <h5 class="offcanvas-title fw-bold text-primary">MENU</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+            </div>
+            <div class="offcanvas-body p-0">
+                <div class="list-group list-group-flush">
+                    <a href="#" class="list-group-item list-group-item-action p-3 fw-bold" onclick="switchView('home')">
+                        <i class="fas fa-home me-3 text-primary"></i> Home
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action p-3 fw-bold" onclick="switchView('notices')">
+                        <i class="fas fa-bullhorn me-3 text-danger"></i> Notice Board
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action p-3 fw-bold" onclick="switchView('list')">
+                        <i class="fas fa-users me-3 text-success"></i> Member List
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action p-3 fw-bold" onclick="switchView('statement')">
+                        <i class="fas fa-file-pdf me-3 text-warning"></i> Members Statement (PDF)
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action p-3 fw-bold" onclick="openExpenseModal()">
+                        <i class="fas fa-receipt me-3 text-secondary"></i> Expense History
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action p-3 fw-bold" onclick="switchView('about')">
+                        <i class="fas fa-info-circle me-3 text-dark"></i> Admin & Bank Info
+                    </a>
+                </div>
+                <div class="p-3 mt-5 text-center text-muted small">
+                    Pocchim Charbata App<br>Version 1.2
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: HOME -->
+        <div id="viewHome" class="view-section active">
+            <div class="balance-card">
+                <div class="balance-label">Current Net Balance</div>
+                <div class="balance-amount">Tk. <span id="totalFund">...</span></div>
+                <div class="stats-row">
+                    <span class="text-success"><i class="fas fa-arrow-circle-down"></i> In: <span id="totalIn">0</span></span>
+                    <span class="text-danger"><i class="fas fa-arrow-circle-up"></i> Out: <span id="totalOut">0</span></span>
+                </div>
+            </div>
+
+            <!-- Latest Notice -->
+            <div class="latest-notice-card" onclick="switchView('notices')">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="notice-badge">Latest Notice</span>
+                    <small class="text-muted fw-bold" style="font-size: 0.7rem;" id="homeNoticeDate"></small>
+                </div>
+                <p class="mb-1 text-dark fw-bold" id="homeNoticeMsg" style="font-size: 0.95rem;">Loading updates...</p>
+                <div class="text-end mt-1">
+                    <small class="text-primary fw-bold" style="font-size: 0.75rem;">Read More <i class="fas fa-arrow-right"></i></small>
+                </div>
+            </div>
+
+            <!-- Quick Links Grid -->
+            <div class="nav-grid">
+                <div class="nav-item-card" onclick="switchView('list')">
+                    <i class="fas fa-users nav-icon text-success"></i>
+                    <small class="fw-bold">Members</small>
+                    <div class="text-muted" style="font-size: 0.7rem" id="homeMemberCount">0 Members</div>
+                </div>
+                <div class="nav-item-card" onclick="switchView('notices')">
+                    <i class="fas fa-bullhorn nav-icon text-danger"></i>
+                    <small class="fw-bold">Notices</small>
+                </div>
+                <div class="nav-item-card" onclick="switchView('search')">
+                    <i class="fas fa-search nav-icon text-primary"></i>
+                    <small class="fw-bold">Search</small>
+                </div>
+                <div class="nav-item-card" onclick="switchView('statement')">
+                    <i class="fas fa-file-invoice nav-icon text-warning"></i>
+                    <small class="fw-bold">Statement</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: NOTICE BOARD -->
+        <div id="viewNotices" class="view-section">
+            <div class="container mt-0">
+                <h5 class="fw-bold text-dark mb-3 ps-2 border-start border-4 border-danger">&nbsp;NOTICE BOARD</h5>
+                <div id="allNoticesList" class="pb-3"></div>
+            </div>
+        </div>
+
+        <!-- VIEW: MEMBER LIST -->
+        <div id="viewList" class="view-section">
+            <div class="container mt-0">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold text-dark m-0 ps-2 border-start border-4 border-success">&nbsp;MEMBERS LIST</h5>
+                    <span class="badge bg-success rounded-pill" id="memberCountList">0</span>
+                </div>
+                <div id="fullMembersContainer" class="pb-3"></div>
+            </div>
+        </div>
+
+        <!-- VIEW: SEARCH -->
+        <div id="viewSearch" class="view-section">
+            <div class="container mt-0">
+                <h5 class="fw-bold text-dark mb-3 ps-2 border-start border-4 border-primary">&nbsp;SEARCH MEMBER</h5>
+                <div class="position-relative mb-4">
+                    <input type="text" class="form-control search-box" id="searchInput" placeholder="Enter name to search...">
+                    <i class="fas fa-search position-absolute text-muted" style="right: 20px; top: 15px;"></i>
+                </div>
+                <div id="searchResultsContainer">
+                    <div class="text-center text-muted mt-5">
+                        <i class="fas fa-search fa-3x mb-3 text-light-emphasis"></i><br>
+                        Start typing to find a member
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: STATEMENT (TABLE) -->
+        <div id="viewStatement" class="view-section">
+            <div class="container mt-0">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold text-dark m-0 ps-2 border-start border-4 border-warning">&nbsp;STATEMENT</h5>
+                    <button class="btn btn-dark btn-sm rounded-pill px-3" onclick="downloadStatementPDF()">
+                        <i class="fas fa-download me-1"></i> PDF
+                    </button>
+                </div>
+                <div class="bg-white rounded shadow-sm p-3">
+                    <table class="table table-hover mb-0" id="statementTable" style="font-size: 0.9rem;">
+                        <thead class="table-light"><tr><th>#</th><th>Name</th><th class="text-end">Total</th></tr></thead>
+                        <tbody id="statementTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: ABOUT ADMIN -->
+        <div id="viewAbout" class="view-section">
+            <div class="container mt-0">
+                <h5 class="fw-bold text-dark mb-3 ps-2 border-start border-4 border-dark">&nbsp;ADMIN INFO</h5>
+                <div class="admin-info-card">
+                    <i class="fas fa-user-shield fa-3x text-primary mb-3"></i>
+                    
+                    <div class="admin-label">Admin Name</div>
+                    <div class="admin-value" id="disp_adminName">...</div>
+                    
+                    <div class="admin-label">Bkash / Contact</div>
+                    <div class="admin-value text-primary" id="disp_adminPhone">...</div>
+                    
+                    <hr class="my-4">
+                    <h6 class="fw-bold text-secondary">BANK DETAILS</h6>
+                    
+                    <div class="admin-label">Bank Name</div>
+                    <div class="admin-value" id="disp_bankName">...</div>
+                    
+                    <div class="admin-label">Account Name</div>
+                    <div class="admin-value" id="disp_accName">...</div>
+                    
+                    <div class="admin-label">Account Number</div>
+                    <div class="admin-value font-monospace" id="disp_accNum">...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    
+    <!-- Expense Modal -->
+    <div class="modal fade" id="expenseModal">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title fw-bold text-danger"><i class="fas fa-receipt me-2"></i>EXPENSE HISTORY</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body bg-light" id="expenseListContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Member Details Modal -->
+    <div class="modal fade" id="memberDetailsModal">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold">MEMBER DETAILS</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body bg-light">
+                    <div class="card border-0 shadow-sm text-center p-4 mb-3 rounded-4">
+                        <div class="mb-2"><i class="fas fa-user-circle fa-4x text-primary"></i></div>
+                        <h4 id="detailName" class="fw-bold mb-0 text-dark">...</h4>
+                        <div id="detailPhone" class="text-muted small">...</div>
+                        <hr>
+                        <small class="text-uppercase text-muted fw-bold">Total Contribution</small>
+                        <h2 class="text-success fw-bold mt-1">Tk. <span id="detailTotal">0</span></h2>
+                    </div>
+                    
+                    <h6 class="ps-2 mb-2 text-muted fw-bold small">TRANSACTION HISTORY</h6>
+                    <div class="bg-white rounded-4 shadow-sm overflow-hidden" id="transactionHistory"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCGsoe7Pdt_lh-Hl1VHjPukjug-YZq6qJk",
+            authDomain: "pocchimcharbataapp.firebaseapp.com",
+            projectId: "pocchimcharbataapp",
+            storageBucket: "pocchimcharbataapp.firebasestorage.app",
+            messagingSenderId: "143592441304",
+            appId: "1:143592441304:web:8a26e243dfab0013ca1ead"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let allMembers = {}, allTransactions = {}, allExpenses = {}, allNotices = {};
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+        });
+
+        function loadData() {
+            db.ref('members').on('value', snap => { allMembers = snap.val() || {}; renderMembers(); });
+            db.ref('transactions').on('value', snap => { allTransactions = snap.val() || {}; renderStats(); renderMembers(); });
+            db.ref('expenses').on('value', snap => { allExpenses = snap.val() || {}; renderStats(); });
+            db.ref('adminInfo').on('value', snap => { renderAdmin(snap.val()); });
+            db.ref('notices').on('value', snap => { allNotices = snap.val() || {}; renderNotices(); });
+        }
+
+        function renderNotices() {
+            const listContainer = document.getElementById('allNoticesList');
+            listContainer.innerHTML = '';
+            
+            const noticeArr = [];
+            for(let id in allNotices) noticeArr.push({id, ...allNotices[id]});
+            noticeArr.sort((a,b) => new Date(b.date) - new Date(a.date));
+
+            // Home Page Latest
+            if(noticeArr.length > 0) {
+                const latest = noticeArr[0];
+                document.getElementById('homeNoticeMsg').innerText = latest.message.substring(0, 60) + (latest.message.length > 60 ? '...' : '');
+                document.getElementById('homeNoticeDate').innerText = new Date(latest.date).toLocaleDateString('en-GB');
+            } else {
+                document.getElementById('homeNoticeMsg').innerText = "No active notices.";
+                document.getElementById('homeNoticeDate').innerText = "";
+            }
+
+            // Full List
+            if(noticeArr.length === 0) {
+                listContainer.innerHTML = '<div class="text-center text-muted mt-5">No notices found.</div>';
+                return;
+            }
+
+            noticeArr.forEach(n => {
+                const div = document.createElement('div');
+                div.className = 'bg-white p-3 mb-3 rounded shadow-sm border-start border-4 border-danger';
+                div.innerHTML = `
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="badge bg-danger">NOTICE</span>
+                        <small class="text-muted fw-bold"><i class="far fa-clock"></i> ${new Date(n.date).toLocaleDateString('en-GB')}</small>
+                    </div>
+                    <p class="mb-0 text-dark" style="white-space: pre-wrap; font-size: 0.95rem;">${n.message}</p>
+                `;
+                listContainer.appendChild(div);
+            });
+        }
+
+        function renderStats() {
+            let totalIncome = 0, totalExpense = 0;
+            for(let id in allTransactions) totalIncome += parseFloat(allTransactions[id].amount);
+            for(let id in allExpenses) totalExpense += parseFloat(allExpenses[id].amount);
+            
+            document.getElementById('totalFund').innerText = (totalIncome - totalExpense).toLocaleString();
+            document.getElementById('totalIn').innerText = totalIncome.toLocaleString();
+            document.getElementById('totalOut').innerText = totalExpense.toLocaleString();
+        }
+
+        function renderMembers() {
+            const container = document.getElementById('fullMembersContainer');
+            const searchContainer = document.getElementById('searchResultsContainer');
+            container.innerHTML = ''; 
+            
+            const searchVal = document.getElementById('searchInput').value.toLowerCase();
+            if(searchVal === '') searchContainer.innerHTML = '<div class="text-center text-muted mt-5"><i class="fas fa-search fa-2x mb-2"></i><br>Search results will appear here</div>';
+            else searchContainer.innerHTML = '';
+
+            const ids = Object.keys(allMembers).sort((a,b) => allMembers[a].name.localeCompare(allMembers[b].name));
+            let count = 0;
+            const tbody = document.getElementById('statementTableBody');
+            tbody.innerHTML = '';
+            let serial = 1;
+
+            ids.forEach(id => {
+                const m = allMembers[id];
+                let mTotal = 0;
+                for(let tid in allTransactions) if(allTransactions[tid].memberId === id) mTotal += parseFloat(allTransactions[tid].amount);
+                
+                // HTML Card
+                const cardHtml = `
+                    <div class="member-card" onclick="showMiniStatement('${id}')">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-light rounded-circle p-2 me-3 text-primary"><i class="fas fa-user"></i></div>
+                            <div>
+                                <h6 class="mb-0 fw-bold text-dark">${m.name}</h6>
+                                <small class="text-muted">${m.phone}</small>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <span class="fw-bold text-success">Tk. ${mTotal.toLocaleString()}</span>
+                        </div>
+                    </div>`;
+                
+                container.innerHTML += cardHtml;
+                if(searchVal && m.name.toLowerCase().includes(searchVal)) {
+                    searchContainer.innerHTML += cardHtml;
+                }
+                
+                // Table Row
+                tbody.innerHTML += `<tr><td>${serial++}</td><td>${m.name}<br><small class="text-muted">${m.phone}</small></td><td class="text-end fw-bold">${mTotal}</td></tr>`;
+                count++;
+            });
+            document.getElementById('memberCountList').innerText = count;
+            document.getElementById('homeMemberCount').innerText = count + " Members";
+        }
+
+        function showMiniStatement(id) {
+            const m = allMembers[id];
+            document.getElementById('detailName').innerText = m.name;
+            document.getElementById('detailPhone').innerText = m.phone;
+            const hist = document.getElementById('transactionHistory');
+            hist.innerHTML = '';
+            
+            let tot = 0;
+            const txs = [];
+            for(let tid in allTransactions) if(allTransactions[tid].memberId === id) txs.push(allTransactions[tid]);
+            txs.sort((a,b)=>new Date(b.date)-new Date(a.date));
+            
+            if(txs.length === 0) {
+                hist.innerHTML = '<div class="text-center p-4 text-muted">No transactions found.</div>';
+            } else {
+                txs.forEach(t => {
+                    tot += parseFloat(t.amount);
+                    hist.innerHTML += `
+                        <div class="p-3 border-bottom d-flex justify-content-between align-items-center bg-white">
+                            <div>
+                                <span class="d-block fw-bold text-dark">${new Date(t.date).toLocaleDateString('en-GB')}</span>
+                                <small class="text-muted badge bg-light text-dark border">Deposit</small>
+                            </div>
+                            <span class="fw-bold text-success fs-5">+ ${t.amount}</span>
+                        </div>`;
+                });
+            }
+            document.getElementById('detailTotal').innerText = tot.toLocaleString();
+            new bootstrap.Modal(document.getElementById('memberDetailsModal')).show();
+        }
+
+        function renderAdmin(info) {
+            if(!info) return;
+            document.getElementById('disp_adminName').innerText = info.name || 'Not Set';
+            document.getElementById('disp_adminPhone').innerText = info.phone || 'Not Set';
+            document.getElementById('disp_bankName').innerText = info.bankName || 'Not Set';
+            document.getElementById('disp_accName').innerText = info.accName || 'Not Set';
+            document.getElementById('disp_accNum').innerText = info.accNum || 'Not Set';
+        }
+
+        function openExpenseModal() {
+            const cont = document.getElementById('expenseListContainer');
+            cont.innerHTML = '';
+            const arr = [];
+            for(let id in allExpenses) arr.push(allExpenses[id]);
+            arr.sort((a,b)=>new Date(b.date)-new Date(a.date));
+            
+            if(arr.length===0) cont.innerHTML='<div class="text-center p-5 text-muted"><i class="fas fa-file-invoice fa-3x mb-3"></i><br>No expense records found.</div>';
+            else arr.forEach(e => {
+                cont.innerHTML += `
+                    <div class="card mb-2 shadow-sm border-0">
+                        <div class="card-body p-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-danger fw-bold mb-1">Tk. ${e.amount}</h6>
+                                <small class="text-muted"><i class="far fa-calendar-alt"></i> ${new Date(e.date).toLocaleDateString('en-GB')}</small>
+                            </div>
+                            <div class="text-end text-dark fw-bold" style="font-size: 0.9rem;">
+                                ${e.reason}
+                            </div>
+                        </div>
+                    </div>`;
+            });
+            const off = bootstrap.Offcanvas.getInstance(document.getElementById('offcanvasMenu'));
+            if(off) off.hide();
+            new bootstrap.Modal(document.getElementById('expenseModal')).show();
+        }
+
+        function switchView(view) {
+            const off = bootstrap.Offcanvas.getInstance(document.getElementById('offcanvasMenu'));
+            if(off) off.hide();
+            
+            // Hide all views
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            
+            // Show selected view
+            const target = document.getElementById('view' + view.charAt(0).toUpperCase() + view.slice(1));
+            if(target) target.classList.add('active');
+            
+            // Reset Search on switch
+            if(view !== 'search') {
+                document.getElementById('searchInput').value = '';
+                document.getElementById('searchResultsContainer').innerHTML = '<div class="text-center text-muted mt-5"><i class="fas fa-search fa-2x mb-2"></i><br>Start typing to search</div>';
+            }
+            
+            window.scrollTo(0,0);
+        }
+
+        document.getElementById('searchInput').addEventListener('keyup', renderMembers);
+
+        function downloadStatementPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            doc.setFontSize(14);
+            doc.setTextColor(44, 62, 80);
+            doc.text("Pocchim Charbata Youth Social Welfare Organization", 14, 15);
+            
+            doc.setFontSize(10);
+            doc.setTextColor(100);
+            doc.text("Full Members Contribution Statement", 14, 22);
+            doc.text(`Generated on: ${new Date().toLocaleDateString('en-GB')}`, 14, 27);
+
+            doc.autoTable({ 
+                html: '#statementTable', 
+                startY: 35,
+                theme: 'grid',
+                headStyles: { fillColor: [0, 97, 255] }
+            });
+            doc.save("Pocchim_Charbata_Statement.pdf");
+        }
+    </script>
+</body>
+</html>
