@@ -9,26 +9,28 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Google Fonts (Simple Bangla Font) -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Open+Sans:wght@400;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- jsPDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 
     <style>
+        /* General Styles */
         body { 
             background-color: #f0f2f5; 
-            font-family: 'Open Sans', sans-serif; 
+            font-family: 'Open Sans', 'Noto Sans Bengali', sans-serif;
             padding-bottom: 80px; 
             overflow-x: hidden;
         }
         
-        /* Header Design */
+        /* Header Design - Updated to fix overlap */
         .header-bg {
             background: linear-gradient(135deg, #0061ff, #60efff);
             color: white; 
-            padding: 25px 20px 70px 20px;
+            /* Top padding increased to 60px to clear the menu button */
+            padding: 60px 15px 80px 15px; 
             border-radius: 0 0 25px 25px; 
             text-align: center;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
@@ -36,18 +38,25 @@
             margin-bottom: 50px;
         }
         .org-name {
-            font-family: 'Montserrat', sans-serif; 
+            font-family: 'Montserrat', 'Noto Sans Bengali', sans-serif; 
             font-weight: 800;
             text-transform: uppercase; 
             letter-spacing: 0.5px;
-            font-size: 1rem; 
-            margin-top: 10px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-size: 1.1rem; 
+            margin-top: 10px; /* Adjusted margin */
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.6); 
+            line-height: 1.4;
+        }
+        .org-address {
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-top: 5px;
+            color: rgba(255, 255, 255, 0.95);
         }
         .menu-btn {
             position: absolute; 
-            top: 20px; 
-            right: 20px;
+            top: 15px; /* Moved slightly up */
+            right: 15px; /* Moved slightly right */
             color: white; 
             background: rgba(255,255,255,0.25);
             border: none; 
@@ -55,6 +64,7 @@
             border-radius: 12px;
             backdrop-filter: blur(5px);
             transition: all 0.3s;
+            z-index: 100;
         }
         .menu-btn:active { transform: scale(0.95); }
         
@@ -70,7 +80,7 @@
             z-index: 10;
         }
         .balance-label { font-size: 0.75rem; letter-spacing: 1px; color: #6c757d; font-weight: 700; text-transform: uppercase; }
-        .balance-amount { font-size: 2.5rem; font-weight: 800; color: #2c3e50; font-family: 'Montserrat', sans-serif; margin: 5px 0; }
+        .balance-amount { font-size: 2.2rem; font-weight: 800; color: #2c3e50; font-family: 'Montserrat', 'Noto Sans Bengali', sans-serif; margin: 5px 0; }
         .stats-row { font-size: 0.85rem; font-weight: 600; display: flex; justify-content: center; gap: 20px; }
 
         /* Navigation List */
@@ -120,6 +130,13 @@
         .view-section { display: none; animation: fadeIn 0.3s ease-in-out; }
         .view-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Language Toggle in Menu */
+        .lang-switch-container {
+            padding: 15px;
+            background: #e9ecef;
+            border-bottom: 1px solid #dee2e6;
+        }
     </style>
 </head>
 <body>
@@ -130,39 +147,59 @@
             <button class="menu-btn" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu">
                 <i class="fas fa-bars fa-lg"></i>
             </button>
-            <div class="org-name">Pocchim Charbata Youth<br>Social Welfare Organization</div>
-            <small style="opacity: 0.8; font-size: 0.8rem;">User Panel</small>
+            
+            <div class="org-name" data-i18n="orgName">Pocchim Charbata Youth Social Welfare Organization</div>
+            <div class="org-address" data-i18n="orgAddress">Pocchim Charbata, Subarnachar, Noakhali</div>
+            
+            <div style="margin-top: 10px;">
+                <span class="badge bg-light text-dark opacity-75" data-i18n="userPanel">User Panel</span>
+            </div>
         </div>
 
         <!-- Offcanvas Menu -->
         <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasMenu">
-            <div class="offcanvas-header bg-light">
-                <h5 class="offcanvas-title fw-bold text-primary">MENU</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+            <div class="offcanvas-header bg-primary text-white">
+                <h5 class="offcanvas-title fw-bold" data-i18n="menuTitle">MENU</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
             </div>
+            
+            <!-- Language Selection inside Menu -->
+            <div class="lang-switch-container">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <small class="fw-bold text-muted"><i class="fas fa-language me-1"></i> LANGUAGE / ভাষা</small>
+                </div>
+                <div class="btn-group w-100" role="group">
+                    <input type="radio" class="btn-check" name="btnradio" id="btnRadioEn" autocomplete="off" checked onclick="changeLanguage('en')">
+                    <label class="btn btn-outline-primary fw-bold btn-sm" for="btnRadioEn">English</label>
+                  
+                    <input type="radio" class="btn-check" name="btnradio" id="btnRadioBn" autocomplete="off" onclick="changeLanguage('bn')">
+                    <label class="btn btn-outline-primary fw-bold btn-sm" for="btnRadioBn">বাংলা</label>
+                </div>
+            </div>
+
             <div class="offcanvas-body p-0">
                 <div class="list-group list-group-flush">
-                    <a href="#" class="list-group-item list-group-item-action p-3 fw-bold" onclick="switchView('home')">
-                        <i class="fas fa-home me-3 text-primary"></i> Home
+                    <a href="#" class="list-group-item list-group-item-action p-3 fw-bold border-bottom" onclick="switchView('home')">
+                        <i class="fas fa-home me-3 text-primary"></i> <span data-i18n="menuHome">Home</span>
                     </a>
-                    <a href="#" class="list-group-item list-group-item-action p-3 fw-bold" onclick="switchView('notices')">
-                        <i class="fas fa-bullhorn me-3 text-danger"></i> Notice Board
+                    <a href="#" class="list-group-item list-group-item-action p-3 fw-bold border-bottom" onclick="switchView('notices')">
+                        <i class="fas fa-bullhorn me-3 text-danger"></i> <span data-i18n="menuNotice">Notice Board</span>
                     </a>
-                    <a href="#" class="list-group-item list-group-item-action p-3 fw-bold" onclick="switchView('list')">
-                        <i class="fas fa-users me-3 text-success"></i> Member List
+                    <a href="#" class="list-group-item list-group-item-action p-3 fw-bold border-bottom" onclick="switchView('list')">
+                        <i class="fas fa-users me-3 text-success"></i> <span data-i18n="menuMembers">Member List</span>
                     </a>
-                    <a href="#" class="list-group-item list-group-item-action p-3 fw-bold" onclick="switchView('statement')">
-                        <i class="fas fa-file-pdf me-3 text-warning"></i> Members Statement (PDF)
+                    <a href="#" class="list-group-item list-group-item-action p-3 fw-bold border-bottom" onclick="switchView('statement')">
+                        <i class="fas fa-file-pdf me-3 text-warning"></i> <span data-i18n="menuStatement">Members Statement (PDF)</span>
                     </a>
-                    <a href="#" class="list-group-item list-group-item-action p-3 fw-bold" onclick="openExpenseModal()">
-                        <i class="fas fa-receipt me-3 text-secondary"></i> Expense History
+                    <a href="#" class="list-group-item list-group-item-action p-3 fw-bold border-bottom" onclick="openExpenseModal()">
+                        <i class="fas fa-receipt me-3 text-secondary"></i> <span data-i18n="menuExpense">Expense History</span>
                     </a>
-                    <a href="#" class="list-group-item list-group-item-action p-3 fw-bold" onclick="switchView('about')">
-                        <i class="fas fa-info-circle me-3 text-dark"></i> Admin & Bank Info
+                    <a href="#" class="list-group-item list-group-item-action p-3 fw-bold border-bottom" onclick="switchView('about')">
+                        <i class="fas fa-info-circle me-3 text-dark"></i> <span data-i18n="menuAdmin">Admin & Bank Info</span>
                     </a>
                 </div>
-                <div class="p-3 mt-5 text-center text-muted small">
-                    Pocchim Charbata App<br>Version 1.2
+                <div class="p-3 mt-4 text-center text-muted small">
+                    Pocchim Charbata App<br>Version 1.5
                 </div>
             </div>
         </div>
@@ -170,23 +207,23 @@
         <!-- VIEW: HOME -->
         <div id="viewHome" class="view-section active">
             <div class="balance-card">
-                <div class="balance-label">Current Net Balance</div>
-                <div class="balance-amount">Tk. <span id="totalFund">...</span></div>
+                <div class="balance-label" data-i18n="currentBalance">Current Net Balance</div>
+                <div class="balance-amount"><span data-i18n="currency">Tk.</span> <span id="totalFund">...</span></div>
                 <div class="stats-row">
-                    <span class="text-success"><i class="fas fa-arrow-circle-down"></i> In: <span id="totalIn">0</span></span>
-                    <span class="text-danger"><i class="fas fa-arrow-circle-up"></i> Out: <span id="totalOut">0</span></span>
+                    <span class="text-success"><i class="fas fa-arrow-circle-down"></i> <span data-i18n="totalIn">In</span>: <span id="totalIn">0</span></span>
+                    <span class="text-danger"><i class="fas fa-arrow-circle-up"></i> <span data-i18n="totalOut">Out</span>: <span id="totalOut">0</span></span>
                 </div>
             </div>
 
             <!-- Latest Notice -->
             <div class="latest-notice-card" onclick="switchView('notices')">
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="notice-badge">Latest Notice</span>
+                    <span class="notice-badge" data-i18n="latestNoticeBadge">Latest Notice</span>
                     <small class="text-muted fw-bold" style="font-size: 0.7rem;" id="homeNoticeDate"></small>
                 </div>
                 <p class="mb-1 text-dark fw-bold" id="homeNoticeMsg" style="font-size: 0.95rem;">Loading updates...</p>
                 <div class="text-end mt-1">
-                    <small class="text-primary fw-bold" style="font-size: 0.75rem;">Read More <i class="fas fa-arrow-right"></i></small>
+                    <small class="text-primary fw-bold" style="font-size: 0.75rem;"><span data-i18n="readMore">Read More</span> <i class="fas fa-arrow-right"></i></small>
                 </div>
             </div>
 
@@ -194,20 +231,20 @@
             <div class="nav-grid">
                 <div class="nav-item-card" onclick="switchView('list')">
                     <i class="fas fa-users nav-icon text-success"></i>
-                    <small class="fw-bold">Members</small>
+                    <small class="fw-bold" data-i18n="btnMembers">Members</small>
                     <div class="text-muted" style="font-size: 0.7rem" id="homeMemberCount">0 Members</div>
                 </div>
                 <div class="nav-item-card" onclick="switchView('notices')">
                     <i class="fas fa-bullhorn nav-icon text-danger"></i>
-                    <small class="fw-bold">Notices</small>
+                    <small class="fw-bold" data-i18n="btnNotices">Notices</small>
                 </div>
                 <div class="nav-item-card" onclick="switchView('search')">
                     <i class="fas fa-search nav-icon text-primary"></i>
-                    <small class="fw-bold">Search</small>
+                    <small class="fw-bold" data-i18n="btnSearch">Search</small>
                 </div>
                 <div class="nav-item-card" onclick="switchView('statement')">
                     <i class="fas fa-file-invoice nav-icon text-warning"></i>
-                    <small class="fw-bold">Statement</small>
+                    <small class="fw-bold" data-i18n="btnStatement">Statement</small>
                 </div>
             </div>
         </div>
@@ -215,7 +252,7 @@
         <!-- VIEW: NOTICE BOARD -->
         <div id="viewNotices" class="view-section">
             <div class="container mt-0">
-                <h5 class="fw-bold text-dark mb-3 ps-2 border-start border-4 border-danger">&nbsp;NOTICE BOARD</h5>
+                <h5 class="fw-bold text-dark mb-3 ps-2 border-start border-4 border-danger">&nbsp;<span data-i18n="titleNotice">NOTICE BOARD</span></h5>
                 <div id="allNoticesList" class="pb-3"></div>
             </div>
         </div>
@@ -224,7 +261,7 @@
         <div id="viewList" class="view-section">
             <div class="container mt-0">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="fw-bold text-dark m-0 ps-2 border-start border-4 border-success">&nbsp;MEMBERS LIST</h5>
+                    <h5 class="fw-bold text-dark m-0 ps-2 border-start border-4 border-success">&nbsp;<span data-i18n="titleMembers">MEMBERS LIST</span></h5>
                     <span class="badge bg-success rounded-pill" id="memberCountList">0</span>
                 </div>
                 <div id="fullMembersContainer" class="pb-3"></div>
@@ -234,7 +271,7 @@
         <!-- VIEW: SEARCH -->
         <div id="viewSearch" class="view-section">
             <div class="container mt-0">
-                <h5 class="fw-bold text-dark mb-3 ps-2 border-start border-4 border-primary">&nbsp;SEARCH MEMBER</h5>
+                <h5 class="fw-bold text-dark mb-3 ps-2 border-start border-4 border-primary">&nbsp;<span data-i18n="titleSearch">SEARCH MEMBER</span></h5>
                 <div class="position-relative mb-4">
                     <input type="text" class="form-control search-box" id="searchInput" placeholder="Enter name to search...">
                     <i class="fas fa-search position-absolute text-muted" style="right: 20px; top: 15px;"></i>
@@ -242,7 +279,7 @@
                 <div id="searchResultsContainer">
                     <div class="text-center text-muted mt-5">
                         <i class="fas fa-search fa-3x mb-3 text-light-emphasis"></i><br>
-                        Start typing to find a member
+                        <span data-i18n="searchPlaceholder">Start typing to find a member</span>
                     </div>
                 </div>
             </div>
@@ -252,14 +289,18 @@
         <div id="viewStatement" class="view-section">
             <div class="container mt-0">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="fw-bold text-dark m-0 ps-2 border-start border-4 border-warning">&nbsp;STATEMENT</h5>
+                    <h5 class="fw-bold text-dark m-0 ps-2 border-start border-4 border-warning">&nbsp;<span data-i18n="titleStatement">STATEMENT</span></h5>
                     <button class="btn btn-dark btn-sm rounded-pill px-3" onclick="downloadStatementPDF()">
                         <i class="fas fa-download me-1"></i> PDF
                     </button>
                 </div>
                 <div class="bg-white rounded shadow-sm p-3">
+                    <div class="alert alert-info small py-2 mb-2">
+                        <i class="fas fa-info-circle me-1"></i> 
+                        <span data-i18n="pdfNote">PDF will be downloaded in English to support all devices.</span>
+                    </div>
                     <table class="table table-hover mb-0" id="statementTable" style="font-size: 0.9rem;">
-                        <thead class="table-light"><tr><th>#</th><th>Name</th><th class="text-end">Total</th></tr></thead>
+                        <thead class="table-light"><tr><th>#</th><th data-i18n="colName">Name</th><th class="text-end" data-i18n="colTotal">Total</th></tr></thead>
                         <tbody id="statementTableBody"></tbody>
                     </table>
                 </div>
@@ -269,26 +310,26 @@
         <!-- VIEW: ABOUT ADMIN -->
         <div id="viewAbout" class="view-section">
             <div class="container mt-0">
-                <h5 class="fw-bold text-dark mb-3 ps-2 border-start border-4 border-dark">&nbsp;ADMIN INFO</h5>
+                <h5 class="fw-bold text-dark mb-3 ps-2 border-start border-4 border-dark">&nbsp;<span data-i18n="titleAdmin">ADMIN INFO</span></h5>
                 <div class="admin-info-card">
                     <i class="fas fa-user-shield fa-3x text-primary mb-3"></i>
                     
-                    <div class="admin-label">Admin Name</div>
+                    <div class="admin-label" data-i18n="lblAdminName">Admin Name</div>
                     <div class="admin-value" id="disp_adminName">...</div>
                     
-                    <div class="admin-label">Bkash / Contact</div>
+                    <div class="admin-label" data-i18n="lblContact">Bkash / Contact</div>
                     <div class="admin-value text-primary" id="disp_adminPhone">...</div>
                     
                     <hr class="my-4">
-                    <h6 class="fw-bold text-secondary">BANK DETAILS</h6>
+                    <h6 class="fw-bold text-secondary" data-i18n="lblBankDetails">BANK DETAILS</h6>
                     
-                    <div class="admin-label">Bank Name</div>
+                    <div class="admin-label" data-i18n="lblBankName">Bank Name</div>
                     <div class="admin-value" id="disp_bankName">...</div>
                     
-                    <div class="admin-label">Account Name</div>
+                    <div class="admin-label" data-i18n="lblAccName">Account Name</div>
                     <div class="admin-value" id="disp_accName">...</div>
                     
-                    <div class="admin-label">Account Number</div>
+                    <div class="admin-label" data-i18n="lblAccNum">Account Number</div>
                     <div class="admin-value font-monospace" id="disp_accNum">...</div>
                 </div>
             </div>
@@ -302,7 +343,7 @@
         <div class="modal-dialog modal-fullscreen">
             <div class="modal-content">
                 <div class="modal-header bg-light">
-                    <h5 class="modal-title fw-bold text-danger"><i class="fas fa-receipt me-2"></i>EXPENSE HISTORY</h5>
+                    <h5 class="modal-title fw-bold text-danger"><i class="fas fa-receipt me-2"></i><span data-i18n="titleExpense">EXPENSE HISTORY</span></h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body bg-light" id="expenseListContainer"></div>
@@ -315,7 +356,7 @@
         <div class="modal-dialog modal-fullscreen">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title fw-bold">MEMBER DETAILS</h5>
+                    <h5 class="modal-title fw-bold" data-i18n="titleMemDetails">MEMBER DETAILS</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body bg-light">
@@ -324,11 +365,11 @@
                         <h4 id="detailName" class="fw-bold mb-0 text-dark">...</h4>
                         <div id="detailPhone" class="text-muted small">...</div>
                         <hr>
-                        <small class="text-uppercase text-muted fw-bold">Total Contribution</small>
-                        <h2 class="text-success fw-bold mt-1">Tk. <span id="detailTotal">0</span></h2>
+                        <small class="text-uppercase text-muted fw-bold" data-i18n="lblTotalContrib">Total Contribution</small>
+                        <h2 class="text-success fw-bold mt-1"><span data-i18n="currency">Tk.</span> <span id="detailTotal">0</span></h2>
                     </div>
                     
-                    <h6 class="ps-2 mb-2 text-muted fw-bold small">TRANSACTION HISTORY</h6>
+                    <h6 class="ps-2 mb-2 text-muted fw-bold small" data-i18n="lblTransHistory">TRANSACTION HISTORY</h6>
                     <div class="bg-white rounded-4 shadow-sm overflow-hidden" id="transactionHistory"></div>
                 </div>
             </div>
@@ -353,8 +394,103 @@
         const db = firebase.database();
 
         let allMembers = {}, allTransactions = {}, allExpenses = {}, allNotices = {};
+        
+        // --- Translation & Language Logic ---
+        let currentLang = localStorage.getItem('appLang') || 'en';
+
+        const translations = {
+            orgName: { en: "Pocchim Charbata Youth Social Welfare Organization", bn: "পশ্চিম চরবাটা যুব সমাজ কল্যাণ সংগঠন" },
+            orgAddress: { en: "Pocchim Charbata, Subarnachar, Noakhali", bn: "পশ্চিম চরবাটা, সুবর্ণচর, নোয়াখালী" },
+            userPanel: { en: "User Panel", bn: "ব্যবহারকারী প্যানেল" },
+            menuTitle: { en: "MENU", bn: "মেনু" },
+            menuHome: { en: "Home", bn: "হোম" },
+            menuNotice: { en: "Notice Board", bn: "নোটিশ বোর্ড" },
+            menuMembers: { en: "Member List", bn: "সদস্য তালিকা" },
+            menuStatement: { en: "Members Statement (PDF)", bn: "সদস্যদের বিবরণী (PDF)" },
+            menuExpense: { en: "Expense History", bn: "ব্যয়ের ইতিহাস" },
+            menuAdmin: { en: "Admin & Bank Info", bn: "অ্যাডমিন ও ব্যাংক তথ্য" },
+            currentBalance: { en: "Current Net Balance", bn: "বর্তমান মোট স্থিতি" },
+            currency: { en: "Tk.", bn: "৳" },
+            totalIn: { en: "In", bn: "আয়" },
+            totalOut: { en: "Out", bn: "ব্যয়" },
+            latestNoticeBadge: { en: "Latest Notice", bn: "সর্বশেষ নোটিশ" },
+            readMore: { en: "Read More", bn: "আরও পড়ুন" },
+            btnMembers: { en: "Members", bn: "সদস্যবৃন্দ" },
+            btnNotices: { en: "Notices", bn: "নোটিশ" },
+            btnSearch: { en: "Search", bn: "অনুসন্ধান" },
+            btnStatement: { en: "Statement", bn: "বিবরণী" },
+            titleNotice: { en: "NOTICE BOARD", bn: "নোটিশ বোর্ড" },
+            titleMembers: { en: "MEMBERS LIST", bn: "সদস্য তালিকা" },
+            titleSearch: { en: "SEARCH MEMBER", bn: "সদস্য অনুসন্ধান" },
+            searchPlaceholder: { en: "Start typing to find a member", bn: "সদস্য খুঁজতে টাইপ করুন" },
+            titleStatement: { en: "STATEMENT", bn: "বিবরণী" },
+            colName: { en: "Name", bn: "নাম" },
+            colTotal: { en: "Total", bn: "মোট" },
+            titleAdmin: { en: "ADMIN INFO", bn: "অ্যাডমিন তথ্য" },
+            lblAdminName: { en: "Admin Name", bn: "অ্যাডমিনের নাম" },
+            lblContact: { en: "Bkash / Contact", bn: "বিকাশ / যোগাযোগ" },
+            lblBankDetails: { en: "BANK DETAILS", bn: "ব্যাংক বিস্তারিত" },
+            lblBankName: { en: "Bank Name", bn: "ব্যাংকের নাম" },
+            lblAccName: { en: "Account Name", bn: "অ্যাকাউন্ট নাম" },
+            lblAccNum: { en: "Account Number", bn: "অ্যাকাউন্ট নম্বর" },
+            titleExpense: { en: "EXPENSE HISTORY", bn: "ব্যয়ের ইতিহাস" },
+            titleMemDetails: { en: "MEMBER DETAILS", bn: "সদস্যের বিস্তারিত" },
+            lblTotalContrib: { en: "Total Contribution", bn: "মোট জমা" },
+            lblTransHistory: { en: "TRANSACTION HISTORY", bn: "লেনদেনের ইতিহাস" },
+            memCountSuffix: { en: " Members", bn: " জন সদস্য" },
+            deposit: { en: "Deposit", bn: "জমা" },
+            loading: { en: "Loading updates...", bn: "আপডেট লোড হচ্ছে..." },
+            noNotice: { en: "No active notices.", bn: "কোনো নোটিশ নেই।" },
+            noRes: { en: "Search results will appear here", bn: "অনুসন্ধানের ফলাফল এখানে আসবে" },
+            typeToSearch: { en: "Start typing to search", bn: "খুঁজতে টাইপ করুন" },
+            noTx: { en: "No transactions found.", bn: "কোনো লেনদেন পাওয়া যায়নি।" },
+            noExp: { en: "No expense records found.", bn: "কোনো ব্যয়ের রেকর্ড নেই।" },
+            pdfNote: { en: "PDF will be downloaded in English to support all devices.", bn: "সব ডিভাইসে দেখার সুবিধার্থে পিডিএফ ইংরেজিতে ডাউনলোড হবে।" }
+        };
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('appLang', lang);
+            
+            // Set Radio Button State
+            document.getElementById('btnRadioEn').checked = (lang === 'en');
+            document.getElementById('btnRadioBn').checked = (lang === 'bn');
+
+            // Translate Static Elements
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[key]) {
+                    el.innerHTML = translations[key][lang];
+                }
+            });
+
+            // Re-render dynamic content
+            renderStats();
+            renderNotices();
+            renderMembers();
+            renderAdmin(window.currentAdminInfo); 
+            
+            // Update placeholders
+            const searchInput = document.getElementById('searchInput');
+            if(searchInput) searchInput.placeholder = (lang === 'en' ? "Enter name to search..." : "নাম দিয়ে অনুসন্ধান করুন...");
+        }
+
+        function formatNumber(num) {
+            if (currentLang === 'en') return num.toLocaleString();
+            return num.toLocaleString('bn-BD'); 
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            if (currentLang === 'en') return date.toLocaleDateString('en-GB');
+            return date.toLocaleDateString('bn-BD');
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Initialize language radio
+            document.getElementById('btnRadioEn').checked = (currentLang === 'en');
+            document.getElementById('btnRadioBn').checked = (currentLang === 'bn');
+            changeLanguage(currentLang); 
             loadData();
         });
 
@@ -362,7 +498,7 @@
             db.ref('members').on('value', snap => { allMembers = snap.val() || {}; renderMembers(); });
             db.ref('transactions').on('value', snap => { allTransactions = snap.val() || {}; renderStats(); renderMembers(); });
             db.ref('expenses').on('value', snap => { allExpenses = snap.val() || {}; renderStats(); });
-            db.ref('adminInfo').on('value', snap => { renderAdmin(snap.val()); });
+            db.ref('adminInfo').on('value', snap => { window.currentAdminInfo = snap.val(); renderAdmin(snap.val()); });
             db.ref('notices').on('value', snap => { allNotices = snap.val() || {}; renderNotices(); });
         }
 
@@ -374,19 +510,17 @@
             for(let id in allNotices) noticeArr.push({id, ...allNotices[id]});
             noticeArr.sort((a,b) => new Date(b.date) - new Date(a.date));
 
-            // Home Page Latest
             if(noticeArr.length > 0) {
                 const latest = noticeArr[0];
                 document.getElementById('homeNoticeMsg').innerText = latest.message.substring(0, 60) + (latest.message.length > 60 ? '...' : '');
-                document.getElementById('homeNoticeDate').innerText = new Date(latest.date).toLocaleDateString('en-GB');
+                document.getElementById('homeNoticeDate').innerText = formatDate(latest.date);
             } else {
-                document.getElementById('homeNoticeMsg').innerText = "No active notices.";
+                document.getElementById('homeNoticeMsg').innerText = translations['noNotice'][currentLang];
                 document.getElementById('homeNoticeDate').innerText = "";
             }
 
-            // Full List
             if(noticeArr.length === 0) {
-                listContainer.innerHTML = '<div class="text-center text-muted mt-5">No notices found.</div>';
+                listContainer.innerHTML = `<div class="text-center text-muted mt-5">${translations['noNotice'][currentLang]}</div>`;
                 return;
             }
 
@@ -396,7 +530,7 @@
                 div.innerHTML = `
                     <div class="d-flex justify-content-between mb-2">
                         <span class="badge bg-danger">NOTICE</span>
-                        <small class="text-muted fw-bold"><i class="far fa-clock"></i> ${new Date(n.date).toLocaleDateString('en-GB')}</small>
+                        <small class="text-muted fw-bold"><i class="far fa-clock"></i> ${formatDate(n.date)}</small>
                     </div>
                     <p class="mb-0 text-dark" style="white-space: pre-wrap; font-size: 0.95rem;">${n.message}</p>
                 `;
@@ -409,9 +543,9 @@
             for(let id in allTransactions) totalIncome += parseFloat(allTransactions[id].amount);
             for(let id in allExpenses) totalExpense += parseFloat(allExpenses[id].amount);
             
-            document.getElementById('totalFund').innerText = (totalIncome - totalExpense).toLocaleString();
-            document.getElementById('totalIn').innerText = totalIncome.toLocaleString();
-            document.getElementById('totalOut').innerText = totalExpense.toLocaleString();
+            document.getElementById('totalFund').innerText = formatNumber(totalIncome - totalExpense);
+            document.getElementById('totalIn').innerText = formatNumber(totalIncome);
+            document.getElementById('totalOut').innerText = formatNumber(totalExpense);
         }
 
         function renderMembers() {
@@ -420,7 +554,7 @@
             container.innerHTML = ''; 
             
             const searchVal = document.getElementById('searchInput').value.toLowerCase();
-            if(searchVal === '') searchContainer.innerHTML = '<div class="text-center text-muted mt-5"><i class="fas fa-search fa-2x mb-2"></i><br>Search results will appear here</div>';
+            if(searchVal === '') searchContainer.innerHTML = `<div class="text-center text-muted mt-5"><i class="fas fa-search fa-2x mb-2"></i><br>${translations['noRes'][currentLang]}</div>`;
             else searchContainer.innerHTML = '';
 
             const ids = Object.keys(allMembers).sort((a,b) => allMembers[a].name.localeCompare(allMembers[b].name));
@@ -434,7 +568,7 @@
                 let mTotal = 0;
                 for(let tid in allTransactions) if(allTransactions[tid].memberId === id) mTotal += parseFloat(allTransactions[tid].amount);
                 
-                // HTML Card
+                const currency = translations['currency'][currentLang];
                 const cardHtml = `
                     <div class="member-card" onclick="showMiniStatement('${id}')">
                         <div class="d-flex align-items-center">
@@ -445,7 +579,7 @@
                             </div>
                         </div>
                         <div class="text-end">
-                            <span class="fw-bold text-success">Tk. ${mTotal.toLocaleString()}</span>
+                            <span class="fw-bold text-success">${currency} ${formatNumber(mTotal)}</span>
                         </div>
                     </div>`;
                 
@@ -454,12 +588,11 @@
                     searchContainer.innerHTML += cardHtml;
                 }
                 
-                // Table Row
-                tbody.innerHTML += `<tr><td>${serial++}</td><td>${m.name}<br><small class="text-muted">${m.phone}</small></td><td class="text-end fw-bold">${mTotal}</td></tr>`;
+                tbody.innerHTML += `<tr><td>${formatNumber(serial++)}</td><td>${m.name}<br><small class="text-muted">${m.phone}</small></td><td class="text-end fw-bold">${formatNumber(mTotal)}</td></tr>`;
                 count++;
             });
-            document.getElementById('memberCountList').innerText = count;
-            document.getElementById('homeMemberCount').innerText = count + " Members";
+            document.getElementById('memberCountList').innerText = formatNumber(count);
+            document.getElementById('homeMemberCount').innerText = formatNumber(count) + translations['memCountSuffix'][currentLang];
         }
 
         function showMiniStatement(id) {
@@ -475,21 +608,21 @@
             txs.sort((a,b)=>new Date(b.date)-new Date(a.date));
             
             if(txs.length === 0) {
-                hist.innerHTML = '<div class="text-center p-4 text-muted">No transactions found.</div>';
+                hist.innerHTML = `<div class="text-center p-4 text-muted">${translations['noTx'][currentLang]}</div>`;
             } else {
                 txs.forEach(t => {
                     tot += parseFloat(t.amount);
                     hist.innerHTML += `
                         <div class="p-3 border-bottom d-flex justify-content-between align-items-center bg-white">
                             <div>
-                                <span class="d-block fw-bold text-dark">${new Date(t.date).toLocaleDateString('en-GB')}</span>
-                                <small class="text-muted badge bg-light text-dark border">Deposit</small>
+                                <span class="d-block fw-bold text-dark">${formatDate(t.date)}</span>
+                                <small class="text-muted badge bg-light text-dark border">${translations['deposit'][currentLang]}</small>
                             </div>
-                            <span class="fw-bold text-success fs-5">+ ${t.amount}</span>
+                            <span class="fw-bold text-success fs-5">+ ${formatNumber(t.amount)}</span>
                         </div>`;
                 });
             }
-            document.getElementById('detailTotal').innerText = tot.toLocaleString();
+            document.getElementById('detailTotal').innerText = formatNumber(tot);
             new bootstrap.Modal(document.getElementById('memberDetailsModal')).show();
         }
 
@@ -509,14 +642,15 @@
             for(let id in allExpenses) arr.push(allExpenses[id]);
             arr.sort((a,b)=>new Date(b.date)-new Date(a.date));
             
-            if(arr.length===0) cont.innerHTML='<div class="text-center p-5 text-muted"><i class="fas fa-file-invoice fa-3x mb-3"></i><br>No expense records found.</div>';
+            if(arr.length===0) cont.innerHTML=`<div class="text-center p-5 text-muted"><i class="fas fa-file-invoice fa-3x mb-3"></i><br>${translations['noExp'][currentLang]}</div>`;
             else arr.forEach(e => {
+                const currency = translations['currency'][currentLang];
                 cont.innerHTML += `
                     <div class="card mb-2 shadow-sm border-0">
                         <div class="card-body p-3 d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="text-danger fw-bold mb-1">Tk. ${e.amount}</h6>
-                                <small class="text-muted"><i class="far fa-calendar-alt"></i> ${new Date(e.date).toLocaleDateString('en-GB')}</small>
+                                <h6 class="text-danger fw-bold mb-1">${currency} ${formatNumber(e.amount)}</h6>
+                                <small class="text-muted"><i class="far fa-calendar-alt"></i> ${formatDate(e.date)}</small>
                             </div>
                             <div class="text-end text-dark fw-bold" style="font-size: 0.9rem;">
                                 ${e.reason}
@@ -533,19 +667,14 @@
             const off = bootstrap.Offcanvas.getInstance(document.getElementById('offcanvasMenu'));
             if(off) off.hide();
             
-            // Hide all views
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            
-            // Show selected view
             const target = document.getElementById('view' + view.charAt(0).toUpperCase() + view.slice(1));
             if(target) target.classList.add('active');
             
-            // Reset Search on switch
             if(view !== 'search') {
                 document.getElementById('searchInput').value = '';
-                document.getElementById('searchResultsContainer').innerHTML = '<div class="text-center text-muted mt-5"><i class="fas fa-search fa-2x mb-2"></i><br>Start typing to search</div>';
+                document.getElementById('searchResultsContainer').innerHTML = `<div class="text-center text-muted mt-5"><i class="fas fa-search fa-2x mb-2"></i><br>${translations['typeToSearch'][currentLang]}</div>`;
             }
-            
             window.scrollTo(0,0);
         }
 
@@ -555,6 +684,17 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             
+            const ids = Object.keys(allMembers).sort((a,b) => allMembers[a].name.localeCompare(allMembers[b].name));
+            const tableData = [];
+            let serial = 1;
+
+            ids.forEach(id => {
+                const m = allMembers[id];
+                let mTotal = 0;
+                for(let tid in allTransactions) if(allTransactions[tid].memberId === id) mTotal += parseFloat(allTransactions[tid].amount);
+                tableData.push([serial++, m.name, mTotal.toLocaleString()]);
+            });
+
             doc.setFontSize(14);
             doc.setTextColor(44, 62, 80);
             doc.text("Pocchim Charbata Youth Social Welfare Organization", 14, 15);
@@ -565,7 +705,8 @@
             doc.text(`Generated on: ${new Date().toLocaleDateString('en-GB')}`, 14, 27);
 
             doc.autoTable({ 
-                html: '#statementTable', 
+                head: [['#', 'Name', 'Total']],
+                body: tableData,
                 startY: 35,
                 theme: 'grid',
                 headStyles: { fillColor: [0, 97, 255] }
