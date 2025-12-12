@@ -1,3 +1,4 @@
+<!-- START OF FILE foundation apps user.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,7 +10,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts (Simple Bangla Font) -->
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Open+Sans:wght@400;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- jsPDF -->
@@ -25,11 +26,10 @@
             overflow-x: hidden;
         }
         
-        /* Header Design - Updated to fix overlap */
+        /* Header Design */
         .header-bg {
             background: linear-gradient(135deg, #0061ff, #60efff);
             color: white; 
-            /* Top padding increased to 60px to clear the menu button */
             padding: 60px 15px 80px 15px; 
             border-radius: 0 0 25px 25px; 
             text-align: center;
@@ -43,7 +43,7 @@
             text-transform: uppercase; 
             letter-spacing: 0.5px;
             font-size: 1.1rem; 
-            margin-top: 10px; /* Adjusted margin */
+            margin-top: 10px;
             text-shadow: 0 0 10px rgba(255, 255, 255, 0.6); 
             line-height: 1.4;
         }
@@ -54,30 +54,19 @@
             color: rgba(255, 255, 255, 0.95);
         }
         .menu-btn {
-            position: absolute; 
-            top: 15px; /* Moved slightly up */
-            right: 15px; /* Moved slightly right */
-            color: white; 
-            background: rgba(255,255,255,0.25);
-            border: none; 
-            padding: 8px 14px; 
-            border-radius: 12px;
-            backdrop-filter: blur(5px);
-            transition: all 0.3s;
-            z-index: 100;
+            position: absolute; top: 15px; right: 15px; 
+            color: white; background: rgba(255,255,255,0.25);
+            border: none; padding: 8px 14px; border-radius: 12px;
+            backdrop-filter: blur(5px); transition: all 0.3s; z-index: 100;
         }
         .menu-btn:active { transform: scale(0.95); }
         
         /* Balance Card */
         .balance-card {
-            background: white; 
-            margin: -60px 20px 20px 20px;
-            padding: 25px 20px; 
-            border-radius: 20px;
+            background: white; margin: -60px 20px 20px 20px;
+            padding: 25px 20px; border-radius: 20px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.08); 
-            text-align: center;
-            position: relative;
-            z-index: 10;
+            text-align: center; position: relative; z-index: 10;
         }
         .balance-label { font-size: 0.75rem; letter-spacing: 1px; color: #6c757d; font-weight: 700; text-transform: uppercase; }
         .balance-amount { font-size: 2.2rem; font-weight: 800; color: #2c3e50; font-family: 'Montserrat', 'Noto Sans Bengali', sans-serif; margin: 5px 0; }
@@ -199,7 +188,7 @@
                     </a>
                 </div>
                 <div class="p-3 mt-4 text-center text-muted small">
-                    Pocchim Charbata App<br>Version 1.5
+                    Pocchim Charbata App<br>Version 1.6
                 </div>
             </div>
         </div>
@@ -317,9 +306,20 @@
                     <div class="admin-label" data-i18n="lblAdminName">Admin Name</div>
                     <div class="admin-value" id="disp_adminName">...</div>
                     
-                    <div class="admin-label" data-i18n="lblContact">Bkash / Contact</div>
+                    <div class="admin-label" data-i18n="lblContact">Mobile (bKash Personal)</div>
                     <div class="admin-value text-primary" id="disp_adminPhone">...</div>
                     
+                    <div class="row mt-3">
+                        <div class="col-6">
+                            <div class="admin-label">Facebook</div>
+                            <div class="admin-value small"><a href="#" id="disp_fbLink" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill mt-1"><i class="fab fa-facebook"></i> View</a></div>
+                        </div>
+                        <div class="col-6">
+                            <div class="admin-label">WhatsApp</div>
+                            <div class="admin-value small"><a href="#" id="disp_waLink" target="_blank" class="btn btn-sm btn-outline-success rounded-pill mt-1"><i class="fab fa-whatsapp"></i> Chat</a></div>
+                        </div>
+                    </div>
+
                     <hr class="my-4">
                     <h6 class="fw-bold text-secondary" data-i18n="lblBankDetails">BANK DETAILS</h6>
                     
@@ -331,6 +331,9 @@
                     
                     <div class="admin-label" data-i18n="lblAccNum">Account Number</div>
                     <div class="admin-value font-monospace" id="disp_accNum">...</div>
+
+                    <div class="admin-label" data-i18n="lblRouting">Routing Number</div>
+                    <div class="admin-value font-monospace" id="disp_routingNum">...</div>
                 </div>
             </div>
         </div>
@@ -428,11 +431,12 @@
             colTotal: { en: "Total", bn: "মোট" },
             titleAdmin: { en: "ADMIN INFO", bn: "অ্যাডমিন তথ্য" },
             lblAdminName: { en: "Admin Name", bn: "অ্যাডমিনের নাম" },
-            lblContact: { en: "Bkash / Contact", bn: "বিকাশ / যোগাযোগ" },
+            lblContact: { en: "Mobile (bKash Personal)", bn: "মোবাইল (বিকাশ পার্সোনাল)" },
             lblBankDetails: { en: "BANK DETAILS", bn: "ব্যাংক বিস্তারিত" },
             lblBankName: { en: "Bank Name", bn: "ব্যাংকের নাম" },
             lblAccName: { en: "Account Name", bn: "অ্যাকাউন্ট নাম" },
             lblAccNum: { en: "Account Number", bn: "অ্যাকাউন্ট নম্বর" },
+            lblRouting: { en: "Routing Number", bn: "রাউটিং নম্বর" },
             titleExpense: { en: "EXPENSE HISTORY", bn: "ব্যয়ের ইতিহাস" },
             titleMemDetails: { en: "MEMBER DETAILS", bn: "সদস্যের বিস্তারিত" },
             lblTotalContrib: { en: "Total Contribution", bn: "মোট জমা" },
@@ -452,25 +456,19 @@
             currentLang = lang;
             localStorage.setItem('appLang', lang);
             
-            // Set Radio Button State
             document.getElementById('btnRadioEn').checked = (lang === 'en');
             document.getElementById('btnRadioBn').checked = (lang === 'bn');
 
-            // Translate Static Elements
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
-                if (translations[key]) {
-                    el.innerHTML = translations[key][lang];
-                }
+                if (translations[key]) el.innerHTML = translations[key][lang];
             });
 
-            // Re-render dynamic content
             renderStats();
             renderNotices();
             renderMembers();
             renderAdmin(window.currentAdminInfo); 
             
-            // Update placeholders
             const searchInput = document.getElementById('searchInput');
             if(searchInput) searchInput.placeholder = (lang === 'en' ? "Enter name to search..." : "নাম দিয়ে অনুসন্ধান করুন...");
         }
@@ -487,7 +485,6 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Initialize language radio
             document.getElementById('btnRadioEn').checked = (currentLang === 'en');
             document.getElementById('btnRadioBn').checked = (currentLang === 'bn');
             changeLanguage(currentLang); 
@@ -633,6 +630,26 @@
             document.getElementById('disp_bankName').innerText = info.bankName || 'Not Set';
             document.getElementById('disp_accName').innerText = info.accName || 'Not Set';
             document.getElementById('disp_accNum').innerText = info.accNum || 'Not Set';
+            document.getElementById('disp_routingNum').innerText = info.routingNum || 'Not Set';
+
+            // Social Links
+            const fbLink = document.getElementById('disp_fbLink');
+            if(info.fbLink) {
+                fbLink.href = info.fbLink;
+                fbLink.classList.remove('disabled');
+            } else {
+                fbLink.classList.add('disabled');
+            }
+
+            const waLink = document.getElementById('disp_waLink');
+            if(info.waNum) {
+                // Ensure number is clean for link
+                const num = info.waNum.replace(/\D/g,'');
+                waLink.href = `https://wa.me/88${num}`;
+                waLink.classList.remove('disabled');
+            } else {
+                waLink.classList.add('disabled');
+            }
         }
 
         function openExpenseModal() {
