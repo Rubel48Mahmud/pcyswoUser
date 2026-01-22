@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Pocchim Charbata - User Panel</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Open+Sans:wght@400;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+    <style>
+        /* General Styles */
+        body { 
+            background-color: #f0f2f5; 
+            font-family: 'Open Sans', 'Noto Sans Bengali', sans-serif;
+            padding-bottom: 100px; /* Space for bottom nav */
+            overflow-x: hidden;
+        }
+        
+        /* Header Design */
+        .header-bg {
+            background: linear-gradient(135deg, #0061ff, #60efff);
+            color: white; 
+            padding: 40px 15px 80px 15px; 
+            border-radius: 0 0 30px 30px; 
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            position: relative;
+            margin-bottom: 50px;
+        }
+        .org-name {
+            font-family: 'Montserrat', 'Noto Sans Bengali', sans-serif; 
+            font-weight: 800;
+            text-transform: uppercase; 
+            letter-spacing: 0.5px;
+            font-size: 1.1rem; 
+            margin-top: 10px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.6); 
+            line-height: 1.4;
+        }
+        .org-address {
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-top: 5px;
+            color: rgba(255, 255, 255, 0.95);
+        }
+        
+        /* Language Switcher Top Right */
+        .lang-btn-top {
+            position: absolute; top: 15px; right: 15px;
+            background: rgba(255,255,255,0.25);
+            backdrop-filter: blur(5px);
+            border: none; color: white;
+            padding: 5px 10px; border-radius: 20px;
+            font-size: 0.8rem; font-weight: bold;
+        }
+
+        /* Balance Card */
+        .balance-card {
+            background: white; margin: -60px 20px 20px 20px;
+            padding: 25px 20px; border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.08); 
+            text-align: center; position: relative; z-index: 10;
+        }
+        .balance-label { font-size: 0.75rem; letter-spacing: 1px; color: #6c757d; font-weight: 700; text-transform: uppercase; }
+        .balance-amount { font-size: 2.2rem; font-weight: 800; color: #2c3e50; font-family: 'Montserrat', 'Noto Sans Bengali', sans-serif; margin: 5px 0; }
+        .stats-row { font-size: 0.85rem; font-weight: 600; display: flex; justify-content: center; gap: 20px; }
+
+        /* Bottom Navigation Bar (Mobile App Style) */
+        .bottom-nav {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 95%;
+            max-width: 450px;
+            background: #ffffff;
+            height: 75px; /* Slightly taller */
+            border-radius: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            padding: 0 10px;
+        }
+        .nav-link-item {
+            text-align: center;
+            color: #555; /* Darker gray for better visibility */
+            text-decoration: none;
+            flex: 1;
+            transition: all 0.3s;
+            position: relative;
+        }
+        .nav-link-item i {
+            font-size: 1.6rem; /* Larger Icon */
+            display: block;
+            margin-bottom: 5px;
+        }
+        .nav-link-item span {
+            font-size: 0.7rem; /* Slightly larger text */
+            font-weight: 700;
+            display: block;
+        }
+        .nav-link-item.active {
+            color: #0061ff;
+        }
+        .nav-link-item.active i {
+            transform: translateY(-5px);
+        }
+        
+        /* Floating Center Button (HOME) */
+        .nav-link-item.center-btn {
+            background: linear-gradient(135deg, #0061ff, #60efff);
+            color: white;
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 8px 20px rgba(0, 97, 255, 0.4);
+            margin-top: -40px; /* Float effect */
+            flex: none;
+            border: 4px solid #f0f2f5; /* Border to separate from bg */
+        }
+        .nav-link-item.center-btn i {
+            font-size: 1.8rem;
+            margin-bottom: 0;
+        }
+
+        /* Notice Card */
+        .latest-notice-card {
+            background: #fff8e1; border-left: 5px solid #ffc107;
+            margin: 0 20px 25px 20px; padding: 15px;
+            border-radius: 10px; cursor: pointer;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+        .notice-badge {
+            background: #ffc107; color: #000; font-size: 0.65rem;
+            padding: 3px 8px; border-radius: 6px; font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        /* Ramadan Button Style */
+        .ramadan-btn {
+            background: linear-gradient(45deg, #009688, #80cbc4);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 12px;
+            width: 100%;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 10px rgba(0, 150, 136, 0.3);
+            margin-bottom: 20px;
+            text-decoration: none;
+            transition: transform 0.2s;
+        }
+        .ramadan-btn:active { transform: scale(0.98); }
+
+        /* Quick Action Cards */
+        .action-card {
+            background: white; border-radius: 15px; padding: 15px;
+            text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.2s; border-bottom: 4px solid transparent;
+        }
+        .action-card:active { transform: scale(0.98); }
+
+        /* Member List & Search */
+        .member-card {
+            background: white; margin: 0 0 12px 0; padding: 15px;
+            border-radius: 12px; border-left: 5px solid #0061ff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03); cursor: pointer;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .search-box {
+            border-radius: 50px; border: none; padding: 12px 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        /* Admin Info */
+        .admin-info-card {
+            background: white; border-radius: 20px; padding: 25px; margin: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center;
+        }
+        .admin-label { font-size: 0.75rem; color: #95a5a6; font-weight: 700; text-transform: uppercase; margin-top: 15px; }
+        .admin-value { font-size: 1.1rem; color: #2c3e50; font-weight: 700; word-break: break-all; }
+        
+        /* View Management */
+        .view-section { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .view-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Toast */
+        .toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 2000; width: 90%; max-width: 400px; }
+
+        /* Ramadan Table Styles */
+        .ramadan-container {
+            background-color: #ffffff;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #ddd;
+            margin: 0 auto;
+        }
+        .ramadan-header {
+            text-align: center;
+            padding: 8px 5px;
+            background-color: #e0f2f1;
+            border-bottom: 2px solid #009688;
+        }
+        .ramadan-header h2 { margin: 0; font-size: 16px; font-weight: 700; color: #00695c; }
+        .ramadan-header p { margin: 2px 0 0 0; font-size: 11px; color: #004d40; }
+        .ramadan-sub { background-color: #00796b; color: white; padding: 4px; text-align: center; }
+        .ramadan-sub h3 { margin: 0; font-size: 13px; font-weight: 600; }
+        .ramadan-sub span { font-size: 11px; display: block; }
+        
+        .ramadan-table { width: 100%; border-collapse: collapse; font-size: 11px; table-layout: fixed; }
+        .ramadan-table thead { background-color: #004d40; color: white; }
+        .ramadan-table th { padding: 4px 1px; font-weight: 600; border: 1px solid #00332a; text-align: center; white-space: nowrap; }
+        .ramadan-table th:nth-child(1) { width: 12%; }
+        .ramadan-table th:nth-child(2) { width: 20%; }
+        .ramadan-table th:nth-child(3) { width: 22%; }
+        .ramadan-table th:nth-child(4) { width: 22%; }
+        .ramadan-table th:nth-child(5) { width: 24%; }
+        .ramadan-table td { padding: 1px 0; text-align: center; border: 1px solid #ddd; color: #222; font-weight: 500; height: 20px; }
+        .ramadan-table tr:nth-child(even) { background-color: #f4fcf6; }
+        .r-rahmat { border-left: 3px solid #66bb6a; }
+        .r-maghfirat { border-left: 3px solid #42a5f5; }
+        .r-najat { border-left: 3px solid #ab47bc; }
+        .r-first { background-color: #fff8e1 !important; font-weight: bold; }
+        .r-star { color: red; font-size: 10px; margin-right: 1px; }
+        .ramadan-footer { padding: 5px; text-align: center; font-size: 10px; color: #666; background: #fafafa; border-top: 1px solid #eee; }
+    </style>
+</head>
+<body>
+
+    <div id="mainApp">
+        <!-- Header -->
+        <div class="header-bg">
+            <!-- Language Toggle Button -->
+            <button class="lang-btn-top" onclick="toggleLanguage()">
+                <i class="fas fa-language"></i> <span id="langLabel">EN</span>
+            </button>
+            
+            <div class="org-name" data-i18n="orgName">Pocchim Charbata Youth Social Welfare Organization</div>
+            <div class="org-address" data-i18n="orgAddress">Pocchim Charbata, Subarnachar, Noakhali</div>
+            
+            <div style="margin-top: 12px;">
+                <span class="badge bg-white text-primary shadow-sm" style="font-size: 0.85rem; padding: 8px 12px; border-radius: 20px;">
+                    <i class="fas fa-calendar-alt me-1"></i> <span data-i18n="estLabel">Est:</span> 01/03/2025
+                </span>
+            </div>
+        </div>
+
+        <!-- VIEW: HOME -->
+        <div id="viewHome" class="view-section active">
+            <div class="balance-card">
+                <div class="balance-label" data-i18n="currentBalance">Current Net Balance</div>
+                <div class="balance-amount"><span data-i18n="currency">Tk.</span> <span id="totalFund">...</span></div>
+                <div class="stats-row">
+                    <span class="text-success"><i class="fas fa-arrow-circle-down"></i> <span data-i18n="totalIn">In</span>: <span id="totalIn">0</span></span>
+                    <span class="text-danger"><i class="fas fa-arrow-circle-up"></i> <span data-i18n="totalOut">Out</span>: <span id="totalOut">0</span></span>
+                </div>
+            </div>
+
+            <!-- Latest Notice -->
+            <div class="latest-notice-card" onclick="switchView('notices')">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="notice-badge" data-i18n="latestNoticeBadge">Latest Notice</span>
+                    <small class="text-muted fw-bold" style="font-size: 0.7rem;" id="homeNoticeDate"></small>
+                </div>
+                <p class="mb-1 text-dark fw-bold" id="homeNoticeMsg" style="font-size: 0.95rem;">Loading updates...</p>
+                <div class="text-end mt-1">
+                    <small class="text-primary fw-bold" style="font-size: 0.75rem;"><span data-i18n="readMore">Read More</span> <i class="fas fa-arrow-right"></i></small>
+                </div>
+            </div>
+
+            <!-- RAMADAN BUTTON (NEW) -->
+            <div class="container mb-3">
+                <button class="ramadan-btn" onclick="switchView('ramadan')">
+                    <i class="fas fa-moon fa-lg"></i>
+                    <span>সাহরী ও ইফতারের সময়সূচি - ২০২৬</span>
+                </button>
+            </div>
+
+            <!-- Quick Links / Grid -->
+            <div class="container mt-3 mb-4">
+                <div class="row g-3">
+                    <!-- Expense History (Red Color) -->
+                    <div class="col-6">
+                        <div class="action-card border-danger" onclick="openExpenseModal()">
+                            <i class="fas fa-receipt text-danger fa-2x mb-2"></i>
+                            <div class="small fw-bold text-danger" data-i18n="menuExpense">Expense History</div>
+                        </div>
+                    </div>
+                    <!-- Admin (Blue Color & Renamed) -->
+                    <div class="col-6">
+                        <div class="action-card border-primary" onclick="switchView('about')">
+                            <i class="fas fa-user-shield text-primary fa-2x mb-2"></i>
+                            <div class="small fw-bold text-primary" data-i18n="menuAdmin">Admin</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: RAMADAN CALENDAR (NEW) -->
+        <div id="viewRamadan" class="view-section">
+            <div class="container mt-0">
+                <h5 class="fw-bold text-dark mb-3 ps-2 border-start border-4 border-success">&nbsp;রমজান ক্যালেন্ডার</h5>
+                
+                <div class="ramadan-container">
+                    <div class="ramadan-header">
+                        <h2>পশ্চিম চরবাটা যুব সমাজ কল্যাণ সংগঠন</h2>
+                        <p>পশ্চিম চরবাটা, সুবর্ণচর, নোয়াখালী।</p>
+                    </div>
+                    <div class="ramadan-sub">
+                        <h3>সাহরী ও ইফতারের সময়সূচি - ২০২৬</h3>
+                        <span>(নোয়াখালী জেলার জন্য)</span>
+                    </div>
+
+                    <table class="ramadan-table">
+                        <thead>
+                            <tr>
+                                <th>রমজান</th>
+                                <th>তারিখ</th>
+                                <th>সাহরী</th>
+                                <th>ফজর</th>
+                                <th>ইফতার</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- রহমত -->
+                            <tr class="r-rahmat r-first"><td><span class="r-star">★</span>০১</td><td>১৯ ফেব্ৰু</td><td>০৫:০৮</td><td>০৫:১১</td><td>০৫:৫৫</td></tr>
+                            <tr class="r-rahmat"><td>০২</td><td>২০ ফেব্ৰু</td><td>০৫:০৭</td><td>০৫:১০</td><td>০৫:৫৫</td></tr>
+                            <tr class="r-rahmat"><td>০৩</td><td>২১ ফেব্ৰু</td><td>০৫:০৭</td><td>০৫:১০</td><td>০৫:৫৬</td></tr>
+                            <tr class="r-rahmat"><td>০৪</td><td>২২ ফেব্ৰু</td><td>০৫:০৬</td><td>০৫:০৯</td><td>০৫:৫৭</td></tr>
+                            <tr class="r-rahmat"><td>০৫</td><td>২৩ ফেব্ৰু</td><td>০৫:০৫</td><td>০৫:০৮</td><td>০৫:৫৭</td></tr>
+                            <tr class="r-rahmat"><td>০৬</td><td>২৪ ফেব্ৰু</td><td>০৫:০৪</td><td>০৫:০৮</td><td>০৫:৫৮</td></tr>
+                            <tr class="r-rahmat"><td>০৭</td><td>২৫ ফেব্ৰু</td><td>০৫:০৪</td><td>০৫:০৭</td><td>০৫:৫৮</td></tr>
+                            <tr class="r-rahmat"><td>০৮</td><td>২৬ ফেব্ৰু</td><td>০৫:০৩</td><td>০৫:০৬</td><td>০৫:৫৮</td></tr>
+                            <tr class="r-rahmat"><td>০৯</td><td>২৭ ফেব্ৰু</td><td>০৫:০২</td><td>০৫:০৫</td><td>০৫:৫৯</td></tr>
+                            <tr class="r-rahmat"><td>১০</td><td>২৮ ফেব্ৰু</td><td>০৫:০২</td><td>০৫:০৫</td><td>০৫:৫৯</td></tr>
+                            <!-- মাগফিরাত -->
+                            <tr class="r-maghfirat"><td>১১</td><td>০১ মার্চ</td><td>০৫:০১</td><td>০৫:০৪</td><td>০৬:০০</td></tr>
+                            <tr class="r-maghfirat"><td>১২</td><td>০২ মার্চ</td><td>০৫:০০</td><td>০৫:০৩</td><td>০৬:০০</td></tr>
+                            <tr class="r-maghfirat"><td>১৩</td><td>০৩ মার্চ</td><td>০৪:৫৯</td><td>০৫:০২</td><td>০৬:০১</td></tr>
+                            <tr class="r-maghfirat"><td>১৪</td><td>০৪ মার্চ</td><td>০৪:৫৮</td><td>০৫:০১</td><td>০৬:০১</td></tr>
+                            <tr class="r-maghfirat"><td>১৫</td><td>০৫ মার্চ</td><td>০৪:৫৮</td><td>০৫:০১</td><td>০৬:০২</td></tr>
+                            <tr class="r-maghfirat"><td>১৬</td><td>০৬ মার্চ</td><td>০৪:৫৭</td><td>০৫:০০</td><td>০৬:০২</td></tr>
+                            <tr class="r-maghfirat"><td>১৭</td><td>০৭ মার্চ</td><td>০৪:৫৬</td><td>০৪:৫৯</td><td>০৬:০৩</td></tr>
+                            <tr class="r-maghfirat"><td>১৮</td><td>০৮ মার্চ</td><td>০৪:৫৫</td><td>০৪:৫৮</td><td>০৬:০৩</td></tr>
+                            <tr class="r-maghfirat"><td>১৯</td><td>০৯ মার্চ</td><td>০৪:৫৪</td><td>০৫:৫৭</td><td>০৬:০৩</td></tr>
+                            <tr class="r-maghfirat"><td>২০</td><td>১০ মার্চ</td><td>০৪:৫৩</td><td>০৫:৫৬</td><td>০৬:০৪</td></tr>
+                            <!-- নাজাত -->
+                            <tr class="r-najat"><td>২১</td><td>১১ মার্চ</td><td>০৪:৫২</td><td>০৪:৫৫</td><td>০৬:০৪</td></tr>
+                            <tr class="r-najat"><td>২২</td><td>১২ মার্চ</td><td>০৪:৫১</td><td>০৪:৫৪</td><td>০৬:০৫</td></tr>
+                            <tr class="r-najat"><td>২৩</td><td>১৩ মার্চ</td><td>০৪:৫০</td><td>০৪:৫৩</td><td>০৬:০৫</td></tr>
+                            <tr class="r-najat"><td>২৪</td><td>১৪ মার্চ</td><td>০৪:৫০</td><td>০৪:৫২</td><td>০৬:০৫</td></tr>
+                            <tr class="r-najat"><td>২৫</td><td>১৫ মার্চ</td><td>০৪:৪৯</td><td>০৪:৫১</td><td>০৬:০৬</td></tr>
+                            <tr class="r-najat"><td>২৬</td><td>১৬ মার্চ</td><td>০৪:৪৮</td><td>০৪:৫০</td><td>০৬:০৬</td></tr>
+                            <tr class="r-najat"><td>২৭</td><td>১৭ মার্চ</td><td>০৪:৪৭</td><td>০৪:৪৯</td><td>০৬:০৭</td></tr>
+                            <tr class="r-najat"><td>২৮</td><td>১৮ মার্চ</td><td>০৪:৪৬</td><td>০৪:৪৮</td><td>০৬:০৭</td></tr>
+                            <tr class="r-najat"><td>২৯</td><td>১৯ মার্চ</td><td>০৪:৪৫</td><td>০৪:৪৭</td><td>০৬:০৭</td></tr>
+                            <tr class="r-najat"><td>৩০</td><td>২০ মার্চ</td><td>০৪:৪৪</td><td>০৪:৪৬</td><td>০৬:০৮</td></tr>
+                        </tbody>
+                    </table>
+                    <div class="ramadan-footer">
+                        বি:দ্র: সাহরীর শেষ সময়ের সাথে ৩ মিনিট এবং ইফতারের সময়ের সাথে ৩ মিনিট যোগ করে সতর্কতা অবলম্বন করুন।
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: NOTICE BOARD -->
+        <div id="viewNotices" class="view-section">
+            <div class="container mt-0">
+                <h5 class="fw-bold text-dark mb-3 ps-2 border-start border-4 border-danger">&nbsp;<span data-i18n="titleNotice">NOTICE BOARD</span></h5>
+                <div id="allNoticesList" class="pb-3"></div>
+            </div>
+        </div>
+
+        <!-- VIEW: MEMBER LIST -->
+        <div id="viewList" class="view-section">
+            <div class="container mt-0">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold text-dark m-0 ps-2 border-start border-4 border-success">&nbsp;<span data-i18n="titleMembers">MEMBERS LIST</span></h5>
+                    <span class="badge bg-success rounded-pill" id="memberCountList">0</span>
+                </div>
+                <div id="fullMembersContainer" class="pb-3"></div>
+            </div>
+        </div>
+
+        <!-- VIEW: SEARCH -->
+        <div id="viewSearch" class="view-section">
+            <div class="container mt-0">
+                <h5 class="fw-bold text-dark mb-3 ps-2 border-start border-4 border-primary">&nbsp;<span data-i18n="titleSearch">SEARCH MEMBER</span></h5>
+                <div class="position-relative mb-4">
+                    <input type="text" class="form-control search-box" id="searchInput" placeholder="Enter name to search...">
+                    <i class="fas fa-search position-absolute text-muted" style="right: 20px; top: 15px;"></i>
+                </div>
+                <div id="searchResultsContainer">
+                    <div class="text-center text-muted mt-5">
+                        <i class="fas fa-search fa-3x mb-3 text-light-emphasis"></i><br>
+                        <span data-i18n="searchPlaceholder">Start typing to find a member</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: STATEMENT (TABLE) -->
+        <div id="viewStatement" class="view-section">
+            <div class="container mt-0">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold text-dark m-0 ps-2 border-start border-4 border-warning">&nbsp;<span data-i18n="titleStatement">STATEMENT</span></h5>
+                    <button class="btn btn-dark btn-sm rounded-pill px-3" onclick="downloadStatementPDF()">
+                        <i class="fas fa-download me-1"></i> PDF
+                    </button>
+                </div>
+                <div class="bg-white rounded shadow-sm p-3">
+                    <div class="alert alert-info small py-2 mb-2">
+                        <i class="fas fa-info-circle me-1"></i> 
+                        <span data-i18n="pdfNote">PDF will be downloaded in English to support all devices.</span>
+                    </div>
+                    <table class="table table-hover mb-0" id="statementTable" style="font-size: 0.9rem;">
+                        <thead class="table-light"><tr><th>#</th><th data-i18n="colName">Name</th><th class="text-end" data-i18n="colTotal">Total</th></tr></thead>
+                        <tbody id="statementTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: CONTACT ADMIN -->
+        <div id="viewContact" class="view-section">
+            <div class="container mt-0">
+                <h5 class="fw-bold text-dark mb-3 ps-2 border-start border-4 border-info">&nbsp;<span data-i18n="titleContact">CONTACT ADMIN</span></h5>
+                <div class="bg-white p-4 rounded-4 shadow-sm">
+                    <form id="contactForm">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold" data-i18n="lblYourName">Your Name</label>
+                            <input type="text" class="form-control" id="contactName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold" data-i18n="lblYourPhone">Mobile Number</label>
+                            <input type="tel" class="form-control" id="contactPhone" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold" data-i18n="lblMessage">Message</label>
+                            <textarea class="form-control" id="contactMessage" rows="4" required placeholder="Write your message here..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-info text-white fw-bold w-100 py-2">
+                            <i class="fas fa-paper-plane me-2"></i> <span data-i18n="btnSend">Send Message</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: ABOUT ADMIN -->
+        <div id="viewAbout" class="view-section">
+            <div class="container mt-0">
+                <h5 class="fw-bold text-dark mb-3 ps-2 border-start border-4 border-dark">&nbsp;<span data-i18n="titleAdmin">ADMIN INFO</span></h5>
+                <div class="admin-info-card">
+                    <i class="fas fa-user-shield fa-3x text-primary mb-3"></i>
+                    
+                    <div class="admin-label" data-i18n="lblAdminName">Admin Name</div>
+                    <div class="admin-value" id="disp_adminName">...</div>
+                    
+                    <div class="admin-label" data-i18n="lblContact">Mobile (bKash Personal)</div>
+                    <div class="admin-value text-primary" id="disp_adminPhone">...</div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-6">
+                            <div class="admin-label">Facebook</div>
+                            <div class="admin-value small"><a href="#" id="disp_fbLink" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill mt-1"><i class="fab fa-facebook"></i> View</a></div>
+                        </div>
+                        <div class="col-6">
+                            <div class="admin-label">WhatsApp</div>
+                            <div class="admin-value small"><a href="#" id="disp_waLink" target="_blank" class="btn btn-sm btn-outline-success rounded-pill mt-1"><i class="fab fa-whatsapp"></i> Chat</a></div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+                    <h6 class="fw-bold text-secondary" data-i18n="lblBankDetails">BANK DETAILS</h6>
+                    
+                    <div class="admin-label" data-i18n="lblBankName">Bank Name</div>
+                    <div class="admin-value" id="disp_bankName">...</div>
+                    
+                    <div class="admin-label" data-i18n="lblAccName">Account Name</div>
+                    <div class="admin-value" id="disp_accName">...</div>
+                    
+                    <div class="admin-label" data-i18n="lblAccNum">Account Number</div>
+                    <div class="admin-value font-monospace" id="disp_accNum">...</div>
+
+                    <div class="admin-label" data-i18n="lblRouting">Routing Number</div>
+                    <div class="admin-value font-monospace" id="disp_routingNum">...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation Bar (UPDATED: Home Center) -->
+        <div class="bottom-nav">
+            <!-- Left 1: Members -->
+            <a href="#" class="nav-link-item" onclick="switchView('list', this)">
+                <i class="fas fa-users"></i>
+                <span data-i18n="btnMembers">Members</span>
+            </a>
+            <!-- Left 2: Statement/List -->
+            <a href="#" class="nav-link-item" onclick="switchView('statement', this)">
+                <i class="fas fa-file-alt"></i>
+                <span data-i18n="btnStatement">List</span>
+            </a>
+            
+            <!-- CENTER: HOME (Floating) -->
+            <a href="#" class="nav-link-item center-btn active" onclick="switchView('home', this)">
+                <i class="fas fa-home"></i>
+            </a>
+
+            <!-- Right 1: Search -->
+            <a href="#" class="nav-link-item" onclick="switchView('search', this)">
+                <i class="fas fa-search"></i>
+                <span data-i18n="btnSearch">Search</span>
+            </a>
+            <!-- Right 2: Contact -->
+            <a href="#" class="nav-link-item" onclick="switchView('contact', this)">
+                <i class="fas fa-envelope"></i>
+                <span data-i18n="menuContact">Contact</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    
+    <!-- Expense Modal -->
+    <div class="modal fade" id="expenseModal">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title fw-bold text-danger"><i class="fas fa-receipt me-2"></i><span data-i18n="titleExpense">EXPENSE HISTORY</span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body bg-light" id="expenseListContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Member Details Modal -->
+    <div class="modal fade" id="memberDetailsModal">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold" data-i18n="titleMemDetails">MEMBER DETAILS</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body bg-light">
+                    <div class="card border-0 shadow-sm text-center p-4 mb-3 rounded-4">
+                        <div class="mb-2"><i class="fas fa-user-circle fa-4x text-primary"></i></div>
+                        <h4 id="detailName" class="fw-bold mb-0 text-dark">...</h4>
+                        <div id="detailPhone" class="text-muted small">...</div>
+                        <hr>
+                        <small class="text-uppercase text-muted fw-bold" data-i18n="lblTotalContrib">Total Contribution</small>
+                        <div class="d-flex justify-content-center align-items-center gap-2 mt-1">
+                            <h2 class="text-success fw-bold m-0"><span data-i18n="currency">Tk.</span> <span id="detailTotal">0</span></h2>
+                            <!-- Individual PDF Download -->
+                            <button class="btn btn-outline-danger btn-sm rounded-circle" onclick="downloadIndividualPDF()" title="Download PDF">
+                                <i class="fas fa-file-pdf"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <h6 class="ps-2 mb-2 text-muted fw-bold small" data-i18n="lblTransHistory">TRANSACTION HISTORY</h6>
+                    <div class="bg-white rounded-4 shadow-sm overflow-hidden" id="transactionHistory"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast -->
+    <div class="toast-container"><div id="customToast" class="toast align-items-center border-0 shadow-lg" role="alert"><div class="d-flex"><div class="toast-body fw-bold" id="toastMessage"></div><button class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div></div></div>
+
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCGsoe7Pdt_lh-Hl1VHjPukjug-YZq6qJk",
+            authDomain: "pocchimcharbataapp.firebaseapp.com",
+            projectId: "pocchimcharbataapp",
+            storageBucket: "pocchimcharbataapp.firebasestorage.app",
+            messagingSenderId: "143592441304",
+            appId: "1:143592441304:web:8a26e243dfab0013ca1ead"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let allMembers = {}, allTransactions = {}, allExpenses = {}, allNotices = {};
+        let currentMemberIdForPDF = null;
+        
+        // --- Translation & Language Logic ---
+        let currentLang = localStorage.getItem('appLang') || 'en';
+
+        const translations = {
+            orgName: { en: "Pocchim Charbata Youth Social Welfare Organization", bn: "পশ্চিম চরবাটা যুব সমাজ কল্যাণ সংগঠন" },
+            orgAddress: { en: "Pocchim Charbata, Subarnachar, Noakhali", bn: "পশ্চিম চরবাটা, সুবর্ণচর, নোয়াখালী" },
+            estLabel: { en: "Est:", bn: "স্থাপিত:" },
+            menuHome: { en: "Home", bn: "হোম" },
+            menuContact: { en: "Contact", bn: "যোগাযোগ" },
+            menuNotice: { en: "Notice", bn: "নোটিশ" },
+            menuMembers: { en: "Member List", bn: "সদস্য তালিকা" },
+            menuStatement: { en: "Statement", bn: "বিবরণী" },
+            menuExpense: { en: "Expense History", bn: "ব্যয়ের ইতিহাস" },
+            menuAdmin: { en: "Admin", bn: "অ্যাডমিন" },
+            currentBalance: { en: "Current Net Balance", bn: "বর্তমান মোট স্থিতি" },
+            currency: { en: "Tk.", bn: "৳" },
+            totalIn: { en: "In", bn: "আয়" },
+            totalOut: { en: "Out", bn: "ব্যয়" },
+            latestNoticeBadge: { en: "Latest Notice", bn: "সর্বশেষ নোটিশ" },
+            readMore: { en: "Read More", bn: "আরও পড়ুন" },
+            btnMembers: { en: "Members", bn: "সদস্যবৃন্দ" },
+            btnStatement: { en: "Statement", bn: "বিবরণী" },
+            btnSearch: { en: "Search", bn: "অনুসন্ধান" },
+            titleNotice: { en: "NOTICE BOARD", bn: "নোটিশ বোর্ড" },
+            titleMembers: { en: "MEMBERS LIST", bn: "সদস্য তালিকা" },
+            titleSearch: { en: "SEARCH MEMBER", bn: "সদস্য অনুসন্ধান" },
+            searchPlaceholder: { en: "Start typing to find a member", bn: "সদস্য খুঁজতে টাইপ করুন" },
+            titleStatement: { en: "STATEMENT", bn: "বিবরণী" },
+            colName: { en: "Name", bn: "নাম" },
+            colTotal: { en: "Total", bn: "মোট" },
+            titleAdmin: { en: "ADMIN INFO", bn: "অ্যাডমিন তথ্য" },
+            lblAdminName: { en: "Admin Name", bn: "অ্যাডমিনের নাম" },
+            lblContact: { en: "Mobile (bKash Personal)", bn: "মোবাইল (বিকাশ পার্সোনাল)" },
+            lblBankDetails: { en: "BANK DETAILS", bn: "ব্যাংক বিস্তারিত" },
+            lblBankName: { en: "Bank Name", bn: "ব্যাংকের নাম" },
+            lblAccName: { en: "Account Name", bn: "অ্যাকাউন্ট নাম" },
+            lblAccNum: { en: "Account Number", bn: "অ্যাকাউন্ট নম্বর" },
+            lblRouting: { en: "Routing Number", bn: "রাউটিং নম্বর" },
+            titleExpense: { en: "EXPENSE HISTORY", bn: "ব্যয়ের ইতিহাস" },
+            titleMemDetails: { en: "MEMBER DETAILS", bn: "সদস্যের বিস্তারিত" },
+            lblTotalContrib: { en: "Total Contribution", bn: "মোট জমা" },
+            lblTransHistory: { en: "TRANSACTION HISTORY", bn: "লেনদেনের ইতিহাস" },
+            memCountSuffix: { en: " Members", bn: " জন সদস্য" },
+            deposit: { en: "Deposit", bn: "জমা" },
+            loading: { en: "Loading updates...", bn: "আপডেট লোড হচ্ছে..." },
+            noNotice: { en: "No active notices.", bn: "কোনো নোটিশ নেই।" },
+            noRes: { en: "Search results will appear here", bn: "অনুসন্ধানের ফলাফল এখানে আসবে" },
+            typeToSearch: { en: "Start typing to search", bn: "খুঁজতে টাইপ করুন" },
+            noTx: { en: "No transactions found.", bn: "কোনো লেনদেন পাওয়া যায়নি।" },
+            noExp: { en: "No expense records found.", bn: "কোনো ব্যয়ের রেকর্ড নেই।" },
+            pdfNote: { en: "PDF will be downloaded in English to support all devices.", bn: "সব ডিভাইসে দেখার সুবিধার্থে পিডিএফ ইংরেজিতে ডাউনলোড হবে।" },
+            titleContact: { en: "CONTACT ADMIN", bn: "অ্যাডমিনের সাথে যোগাযোগ" },
+            lblYourName: { en: "Your Name", bn: "আপনার নাম" },
+            lblYourPhone: { en: "Mobile Number", bn: "মোবাইল নম্বর" },
+            lblMessage: { en: "Message", bn: "বার্তা" },
+            btnSend: { en: "Send Message", bn: "মেসেজ পাঠান" }
+        };
+
+        function toggleLanguage() {
+            currentLang = (currentLang === 'en') ? 'bn' : 'en';
+            changeLanguage(currentLang);
+        }
+
+        function changeLanguage(lang) {
+            localStorage.setItem('appLang', lang);
+            document.getElementById('langLabel').innerText = lang.toUpperCase();
+
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[key]) el.innerHTML = translations[key][lang];
+            });
+
+            renderStats();
+            renderNotices();
+            renderMembers();
+            renderAdmin(window.currentAdminInfo); 
+            
+            const searchInput = document.getElementById('searchInput');
+            if(searchInput) searchInput.placeholder = (lang === 'en' ? "Enter name to search..." : "নাম দিয়ে অনুসন্ধান করুন...");
+        }
+
+        function formatNumber(num) {
+            if (currentLang === 'en') return num.toLocaleString();
+            return num.toLocaleString('bn-BD'); 
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            if (currentLang === 'en') return date.toLocaleDateString('en-GB');
+            return date.toLocaleDateString('bn-BD');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            changeLanguage(currentLang); 
+            loadData();
+        });
+
+        function loadData() {
+            db.ref('members').on('value', snap => { allMembers = snap.val() || {}; renderMembers(); });
+            db.ref('transactions').on('value', snap => { allTransactions = snap.val() || {}; renderStats(); renderMembers(); });
+            db.ref('expenses').on('value', snap => { allExpenses = snap.val() || {}; renderStats(); });
+            db.ref('adminInfo').on('value', snap => { window.currentAdminInfo = snap.val(); renderAdmin(snap.val()); });
+            db.ref('notices').on('value', snap => { allNotices = snap.val() || {}; renderNotices(); });
+        }
+
+        function renderNotices() {
+            const listContainer = document.getElementById('allNoticesList');
+            listContainer.innerHTML = '';
+            
+            const noticeArr = [];
+            for(let id in allNotices) noticeArr.push({id, ...allNotices[id]});
+            noticeArr.sort((a,b) => new Date(b.date) - new Date(a.date));
+
+            if(noticeArr.length > 0) {
+                const latest = noticeArr[0];
+                document.getElementById('homeNoticeMsg').innerText = latest.message.substring(0, 60) + (latest.message.length > 60 ? '...' : '');
+                document.getElementById('homeNoticeDate').innerText = formatDate(latest.date);
+            } else {
+                document.getElementById('homeNoticeMsg').innerText = translations['noNotice'][currentLang];
+                document.getElementById('homeNoticeDate').innerText = "";
+            }
+
+            if(noticeArr.length === 0) {
+                listContainer.innerHTML = `<div class="text-center text-muted mt-5">${translations['noNotice'][currentLang]}</div>`;
+                return;
+            }
+
+            noticeArr.forEach(n => {
+                const div = document.createElement('div');
+                div.className = 'bg-white p-3 mb-3 rounded shadow-sm border-start border-4 border-danger';
+                div.innerHTML = `
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="badge bg-danger">NOTICE</span>
+                        <small class="text-muted fw-bold"><i class="far fa-clock"></i> ${formatDate(n.date)}</small>
+                    </div>
+                    <p class="mb-0 text-dark" style="white-space: pre-wrap; font-size: 0.95rem;">${n.message}</p>
+                `;
+                listContainer.appendChild(div);
+            });
+        }
+
+        function renderStats() {
+            let totalIncome = 0, totalExpense = 0;
+            for(let id in allTransactions) totalIncome += parseFloat(allTransactions[id].amount);
+            for(let id in allExpenses) totalExpense += parseFloat(allExpenses[id].amount);
+            
+            document.getElementById('totalFund').innerText = formatNumber(totalIncome - totalExpense);
+            document.getElementById('totalIn').innerText = formatNumber(totalIncome);
+            document.getElementById('totalOut').innerText = formatNumber(totalExpense);
+        }
+
+        function renderMembers() {
+            const container = document.getElementById('fullMembersContainer');
+            const searchContainer = document.getElementById('searchResultsContainer');
+            container.innerHTML = ''; 
+            
+            const searchVal = document.getElementById('searchInput').value.toLowerCase();
+            if(searchVal === '') searchContainer.innerHTML = `<div class="text-center text-muted mt-5"><i class="fas fa-search fa-2x mb-2"></i><br>${translations['noRes'][currentLang]}</div>`;
+            else searchContainer.innerHTML = '';
+
+            const ids = Object.keys(allMembers).sort((a,b) => allMembers[a].name.localeCompare(allMembers[b].name));
+            let count = 0;
+            const tbody = document.getElementById('statementTableBody');
+            tbody.innerHTML = '';
+            let serial = 1;
+
+            ids.forEach(id => {
+                const m = allMembers[id];
+                let mTotal = 0;
+                for(let tid in allTransactions) if(allTransactions[tid].memberId === id) mTotal += parseFloat(allTransactions[tid].amount);
+                
+                const currency = translations['currency'][currentLang];
+                const cardHtml = `
+                    <div class="member-card" onclick="showMiniStatement('${id}')">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-light rounded-circle p-2 me-3 text-primary"><i class="fas fa-user"></i></div>
+                            <div>
+                                <h6 class="mb-0 fw-bold text-dark">${m.name}</h6>
+                                <small class="text-muted">${m.phone}</small>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <span class="fw-bold text-success">${currency} ${formatNumber(mTotal)}</span>
+                        </div>
+                    </div>`;
+                
+                container.innerHTML += cardHtml;
+                if(searchVal && m.name.toLowerCase().includes(searchVal)) {
+                    searchContainer.innerHTML += cardHtml;
+                }
+                
+                tbody.innerHTML += `<tr><td>${formatNumber(serial++)}</td><td>${m.name}<br><small class="text-muted">${m.phone}</small></td><td class="text-end fw-bold">${formatNumber(mTotal)}</td></tr>`;
+                count++;
+            });
+            document.getElementById('memberCountList').innerText = formatNumber(count);
+        }
+
+        function showMiniStatement(id) {
+            currentMemberIdForPDF = id;
+            const m = allMembers[id];
+            document.getElementById('detailName').innerText = m.name;
+            document.getElementById('detailPhone').innerText = m.phone;
+            const hist = document.getElementById('transactionHistory');
+            hist.innerHTML = '';
+            
+            let tot = 0;
+            const txs = [];
+            for(let tid in allTransactions) if(allTransactions[tid].memberId === id) txs.push(allTransactions[tid]);
+            txs.sort((a,b)=>new Date(b.date)-new Date(a.date));
+            
+            if(txs.length === 0) {
+                hist.innerHTML = `<div class="text-center p-4 text-muted">${translations['noTx'][currentLang]}</div>`;
+            } else {
+                txs.forEach(t => {
+                    tot += parseFloat(t.amount);
+                    hist.innerHTML += `
+                        <div class="p-3 border-bottom d-flex justify-content-between align-items-center bg-white">
+                            <div>
+                                <span class="d-block fw-bold text-dark">${formatDate(t.date)}</span>
+                                <small class="text-muted badge bg-light text-dark border">${translations['deposit'][currentLang]}</small>
+                            </div>
+                            <span class="fw-bold text-success fs-5">+ ${formatNumber(t.amount)}</span>
+                        </div>`;
+                });
+            }
+            document.getElementById('detailTotal').innerText = formatNumber(tot);
+            new bootstrap.Modal(document.getElementById('memberDetailsModal')).show();
+        }
+
+        function renderAdmin(info) {
+            if(!info) return;
+            document.getElementById('disp_adminName').innerText = info.name || 'Not Set';
+            document.getElementById('disp_adminPhone').innerText = info.phone || 'Not Set';
+            document.getElementById('disp_bankName').innerText = info.bankName || 'Not Set';
+            document.getElementById('disp_accName').innerText = info.accName || 'Not Set';
+            document.getElementById('disp_accNum').innerText = info.accNum || 'Not Set';
+            document.getElementById('disp_routingNum').innerText = info.routingNum || 'Not Set';
+
+            const fbLink = document.getElementById('disp_fbLink');
+            if(info.fbLink) { fbLink.href = info.fbLink; fbLink.classList.remove('disabled'); } 
+            else { fbLink.classList.add('disabled'); }
+
+            const waLink = document.getElementById('disp_waLink');
+            if(info.waNum) {
+                const num = info.waNum.replace(/\D/g,'');
+                waLink.href = `https://wa.me/88${num}`;
+                waLink.classList.remove('disabled');
+            } else { waLink.classList.add('disabled'); }
+        }
+
+        function openExpenseModal() {
+            const cont = document.getElementById('expenseListContainer');
+            cont.innerHTML = '';
+            const arr = [];
+            for(let id in allExpenses) arr.push(allExpenses[id]);
+            arr.sort((a,b)=>new Date(b.date)-new Date(a.date));
+            
+            if(arr.length===0) cont.innerHTML=`<div class="text-center p-5 text-muted"><i class="fas fa-file-invoice fa-3x mb-3"></i><br>${translations['noExp'][currentLang]}</div>`;
+            else arr.forEach(e => {
+                const currency = translations['currency'][currentLang];
+                cont.innerHTML += `
+                    <div class="card mb-2 shadow-sm border-0">
+                        <div class="card-body p-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-danger fw-bold mb-1">${currency} ${formatNumber(e.amount)}</h6>
+                                <small class="text-muted"><i class="far fa-calendar-alt"></i> ${formatDate(e.date)}</small>
+                            </div>
+                            <div class="text-end text-dark fw-bold" style="font-size: 0.9rem;">
+                                ${e.reason}
+                            </div>
+                        </div>
+                    </div>`;
+            });
+            new bootstrap.Modal(document.getElementById('expenseModal')).show();
+        }
+
+        function switchView(view, navElement) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            const target = document.getElementById('view' + view.charAt(0).toUpperCase() + view.slice(1));
+            if(target) target.classList.add('active');
+            
+            if(view !== 'search') {
+                document.getElementById('searchInput').value = '';
+                document.getElementById('searchResultsContainer').innerHTML = `<div class="text-center text-muted mt-5"><i class="fas fa-search fa-2x mb-2"></i><br>${translations['typeToSearch'][currentLang]}</div>`;
+            }
+            
+            // Update Active Nav State
+            if(navElement) {
+                document.querySelectorAll('.nav-link-item').forEach(el => el.classList.remove('active'));
+                navElement.classList.add('active');
+            }
+
+            window.scrollTo(0,0);
+        }
+
+        document.getElementById('searchInput').addEventListener('keyup', renderMembers);
+
+        // --- NEW: Contact Form Logic ---
+        document.getElementById('contactForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('contactName').value;
+            const phone = document.getElementById('contactPhone').value;
+            const message = document.getElementById('contactMessage').value;
+            
+            db.ref('messages').push({
+                name: name,
+                phone: phone,
+                message: message,
+                date: new Date().toISOString()
+            }).then(() => {
+                showToast(currentLang === 'en' ? "Message Sent!" : "মেসেজ পাঠানো হয়েছে!");
+                document.getElementById('contactForm').reset();
+            });
+        });
+
+        function showToast(m) { 
+            const el=document.getElementById('customToast'); 
+            document.getElementById('toastMessage').innerText=m; 
+            el.className=`toast align-items-center border-0 shadow-lg text-white bg-success`; 
+            new bootstrap.Toast(el).show(); 
+        }
+
+        // --- PDF GENERATION LOGIC ---
+        function getCommonPDFHeader(doc) {
+            doc.setFontSize(16);
+            doc.setTextColor(44, 62, 80);
+            doc.setFont("helvetica", "bold");
+            const title = "Pocchim Charbata Youth Social Welfare Organization";
+            const textWidth = doc.getStringUnitWidth(title) * doc.internal.getFontSize() / doc.internal.scaleFactor;
+            const textOffset = (doc.internal.pageSize.width - textWidth) / 2;
+            doc.text(title, textOffset, 15);
+
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(100);
+            const addr = "Pocchim Charbata, Subarnachar, Noakhali";
+            const addrWidth = doc.getStringUnitWidth(addr) * doc.internal.getFontSize() / doc.internal.scaleFactor;
+            doc.text(addr, (doc.internal.pageSize.width - addrWidth) / 2, 21);
+            
+            return 28; // Return Y position for next element
+        }
+
+        // 1. Professional General Statement PDF
+        function downloadStatementPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            let startY = getCommonPDFHeader(doc);
+
+            doc.setFontSize(12);
+            doc.setTextColor(0);
+            doc.text("Members Contribution Statement", 14, startY);
+            doc.setFontSize(9);
+            doc.setTextColor(100);
+            doc.text(`Generated on: ${new Date().toLocaleDateString('en-GB')}`, 14, startY + 5);
+
+            const ids = Object.keys(allMembers).sort((a,b) => allMembers[a].name.localeCompare(allMembers[b].name));
+            const tableData = [];
+            let serial = 1;
+            let grandTotal = 0;
+
+            ids.forEach(id => {
+                const m = allMembers[id];
+                let mTotal = 0;
+                for(let tid in allTransactions) if(allTransactions[tid].memberId === id) mTotal += parseFloat(allTransactions[tid].amount);
+                grandTotal += mTotal;
+                tableData.push([serial++, m.name, m.phone, mTotal.toLocaleString()]);
+            });
+
+            doc.autoTable({ 
+                head: [['#', 'Name', 'Phone', 'Total (Tk)']],
+                body: tableData,
+                startY: startY + 10,
+                theme: 'grid',
+                headStyles: { fillColor: [0, 97, 255], textColor: 255, halign: 'center' },
+                columnStyles: {
+                    0: { halign: 'center', cellWidth: 15 },
+                    3: { halign: 'right', fontStyle: 'bold' }
+                },
+                foot: [['', 'Total Members: ' + ids.length, 'Grand Total:', grandTotal.toLocaleString()]],
+                footStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: 'bold', halign: 'right' }
+            });
+            doc.save("Organization_Statement.pdf");
+        }
+
+        // 2. Individual Member PDF
+        function downloadIndividualPDF() {
+            if(!currentMemberIdForPDF) return;
+            const m = allMembers[currentMemberIdForPDF];
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            let startY = getCommonPDFHeader(doc);
+
+            // Member Info Block
+            doc.setDrawColor(200);
+            doc.setFillColor(245, 247, 250);
+            doc.roundedRect(14, startY, 180, 25, 3, 3, 'FD');
+            
+            doc.setFontSize(12);
+            doc.setTextColor(0);
+            doc.setFont("helvetica", "bold");
+            doc.text(m.name, 20, startY + 8);
+            
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(10);
+            doc.setTextColor(80);
+            doc.text(`Phone: ${m.phone}`, 20, startY + 16);
+            
+            const txs = [];
+            let total = 0;
+            for(let tid in allTransactions) {
+                if(allTransactions[tid].memberId === currentMemberIdForPDF) {
+                    txs.push(allTransactions[tid]);
+                    total += parseFloat(allTransactions[tid].amount);
+                }
+            }
+            txs.sort((a,b) => new Date(a.date) - new Date(b.date)); // Oldest first for statement
+
+            const tableRows = txs.map((t, i) => [i+1, new Date(t.date).toLocaleDateString('en-GB'), "Deposit", t.amount.toLocaleString()]);
+
+            doc.autoTable({
+                head: [['#', 'Date', 'Type', 'Amount (Tk)']],
+                body: tableRows,
+                startY: startY + 30,
+                theme: 'striped',
+                headStyles: { fillColor: [52, 152, 219] },
+                columnStyles: { 3: { halign: 'right' } },
+                foot: [['', '', 'Total Contribution:', total.toLocaleString()]],
+                footStyles: { fontStyle: 'bold', halign: 'right', fillColor: [255, 255, 255], textColor: [0, 0, 0] }
+            });
+
+            doc.save(`${m.name.replace(/\s+/g, '_')}_Statement.pdf`);
+        }
+    </script>
+</body>
+</html>
