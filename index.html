@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>পশ্চিম চরবাটা - User Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        :root {
+            --primary: #1a56db;
+            --primary-dark: #1341b0;
+            --primary-light: #e8f0fe;
+            --accent: #0ea5e9;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            background: var(--bg);
+            font-family: 'Inter', 'Noto Sans Bengali', sans-serif;
+            padding-bottom: 90px;
+            overflow-x: hidden;
+            color: var(--text);
+        }
+        /* ---- HEADER ---- */
+        .app-header {
+            background: linear-gradient(135deg, #1a56db 0%, #0ea5e9 100%);
+            padding: 0 0 70px 0;
+            position: relative;
+        }
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px 12px;
+        }
+        .header-logo {
+            width: 48px; height: 48px;
+            border-radius: 12px;
+            border: 2px solid rgba(255,255,255,0.4);
+            object-fit: cover;
+            background: rgba(255,255,255,0.15);
+        }
+        .header-title {
+            flex: 1;
+            padding: 0 12px;
+        }
+        .header-title h1 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.3;
+            margin: 0;
+        }
+        .header-title p {
+            font-size: 0.72rem;
+            color: rgba(255,255,255,0.8);
+            margin: 2px 0 0;
+        }
+        .lang-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.35);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .est-badge {
+            text-align: center;
+            padding-bottom: 10px;
+        }
+        .est-badge span {
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+            font-size: 0.72rem;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        /* ---- BALANCE CARD ---- */
+        .balance-card {
+            background: #fff;
+            border-radius: 20px;
+            margin: -55px 16px 0 16px;
+            padding: 22px 20px;
+            box-shadow: 0 8px 30px rgba(26,86,219,0.12);
+            position: relative;
+            z-index: 10;
+        }
+        .balance-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+        .balance-amount {
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin: 4px 0 10px;
+        }
+        .balance-amount span.currency {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+        .balance-stats {
+            display: flex;
+            gap: 0;
+            border-top: 1px solid var(--border);
+            padding-top: 12px;
+        }
+        .stat-item {
+            flex: 1;
+            text-align: center;
+        }
+        .stat-item:not(:last-child) {
+            border-right: 1px solid var(--border);
+        }
+        .stat-label { font-size: 0.68rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+        .stat-val { font-size: 1rem; font-weight: 700; margin-top: 2px; }
+        /* ---- NOTICE CARD ---- */
+        .notice-ticker {
+            background: #fff;
+            border-radius: 14px;
+            margin: 14px 16px 0;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            cursor: pointer;
+            border-left: 4px solid var(--warning);
+        }
+        .notice-ticker .notice-icon {
+            width: 36px; height: 36px;
+            background: #fef3c7;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .notice-ticker .notice-text { flex: 1; min-width: 0; }
+        .notice-ticker .notice-text h6 { font-size: 0.78rem; color: var(--warning); font-weight: 700; margin: 0 0 2px; text-transform: uppercase; }
+        .notice-ticker .notice-text p { font-size: 0.88rem; font-weight: 600; color: var(--text); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        /* ---- SECTION TITLE ---- */
+        .section-title {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            padding: 0 4px;
+        }
+        /* ---- QUICK ACTIONS ---- */
+        .quick-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .quick-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 18px 14px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: transform 0.15s;
+            border: 1px solid var(--border);
+        }
+        .quick-card:active { transform: scale(0.96); }
+        .quick-card .qc-icon {
+            width: 48px; height: 48px;
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 10px;
+            font-size: 1.4rem;
+        }
+        .quick-card .qc-label { font-size: 0.82rem; font-weight: 700; color: var(--text); }
+        /* ---- BOTTOM NAV ---- */
+        .bottom-nav {
+            position: fixed;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 32px);
+            max-width: 480px;
+            background: #fff;
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding: 8px 6px;
+            z-index: 1000;
+        }
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            padding: 6px 0;
+            color: #94a3b8;
+            cursor: pointer;
+            border-radius: 14px;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .nav-item i { font-size: 1.3rem; }
+        .nav-item span { font-size: 0.62rem; font-weight: 700; }
+        .nav-item.active { color: var(--primary); }
+        .nav-item.center {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: #fff;
+            width: 52px; height: 52px;
+            border-radius: 50%;
+            margin-top: -20px;
+            box-shadow: 0 6px 20px rgba(26,86,219,0.4);
+            flex: none;
+            padding: 0;
+        }
+        .nav-item.center i { font-size: 1.5rem; }
+        .nav-item.center span { display: none; }
+        /* ---- VIEWS ---- */
+        .view-section { display: none; animation: fadeUp 0.25s ease; }
+        .view-section.active { display: block; }
+        @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+        /* ---- PAGE HEADER ---- */
+        .page-hdr {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 0 14px;
+        }
+        .page-hdr h5 {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--text);
+            margin: 0;
+        }
+        /* ---- MEMBER CARD ---- */
+        .member-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            cursor: pointer;
+            border: 1px solid var(--border);
+            transition: box-shadow 0.2s;
+        }
+        .member-card:active { box-shadow: 0 4px 16px rgba(26,86,219,0.12); }
+        .member-avatar {
+            width: 42px; height: 42px;
+            background: var(--primary-light);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--primary);
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            font-weight: 700;
+        }
+        .member-info { flex: 1; padding: 0 12px; min-width: 0; }
+        .member-info h6 { font-size: 0.92rem; font-weight: 700; margin: 0 0 2px; }
+        .member-info small { font-size: 0.75rem; color: var(--text-muted); }
+        .member-meta { text-align: right; }
+        .member-meta .amount { font-size: 0.9rem; font-weight: 700; color: var(--success); }
+        .arrears-badge {
+            display: inline-block;
+            background: #fee2e2;
+            color: var(--danger);
+            font-size: 0.62rem;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 20px;
+            margin-top: 3px;
+        }
+        .arrears-badge.clear {
+            background: #d1fae5;
+            color: var(--success);
+        }
+        /* ---- SEARCH BOX ---- */
+        .search-wrap {
+            position: relative;
+            margin-bottom: 16px;
+        }
+        .search-wrap input {
+            width: 100%;
+            padding: 13px 16px 13px 44px;
+            border-radius: 14px;
+            border: 1.5px solid var(--border);
+            font-size: 0.9rem;
+            background: #fff;
+            outline: none;
+            transition: border 0.2s;
+        }
+        .search-wrap input:focus { border-color: var(--primary); }
+        .search-wrap i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+        /* ---- STATEMENT TABLE ---- */
+        .stmt-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .stmt-table thead th {
+            background: var(--primary);
+            color: #fff;
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 12px 14px;
+        }
+        .stmt-table tbody td {
+            padding: 10px 14px;
+            font-size: 0.85rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .stmt-table tbody tr:last-child td { border-bottom: none; }
+        /* ---- NOTICE ITEMS ---- */
+        .notice-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-left: 4px solid var(--danger);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        /* ---- ADMIN INFO ---- */
+        .info-block {
+            background: #fff;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .info-row { padding: 12px 0; border-bottom: 1px solid var(--border); }
+        .info-row:last-child { border-bottom: none; padding-bottom: 0; }
+        .info-lbl { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; margin-bottom: 4px; }
+        .info-val { font-size: 0.95rem; font-weight: 700; color: var(--text); word-break: break-all; }
+        /* ---- CONTACT FORM ---- */
+        .form-field { margin-bottom: 16px; }
+        .form-field label { font-size: 0.78rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-field input, .form-field textarea {
+            width: 100%;
+            padding: 13px 16px;
+            border-radius: 12px;
+            border: 1.5px solid var(--border);
+            font-size: 0.9rem;
+            background: #fff;
+            outline: none;
+            transition: border 0.2s;
+            font-family: inherit;
+        }
+        .form-field input:focus, .form-field textarea:focus { border-color: var(--primary); }
+        .btn-primary-custom {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .btn-primary-custom:active { opacity: 0.85; }
+        /* ---- TOAST ---- */
+        .toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; width: 90%; max-width: 380px; }
+        /* ---- MODAL ---- */
+        .modal-header-custom {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: #fff;
+            padding: 18px 20px;
+        }
+        .modal-header-custom .btn-close { filter: invert(1); }
+        .tx-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            background: #fff;
+        }
+        .tx-item:last-child { border-bottom: none; }
+    </style>
+</head>
+<body>
+
+<div id="mainApp">
+
+    <!-- HEADER -->
+    <div class="app-header">
+        <div class="header-top">
+            <img src="https://i.ibb.co.com/C5wgVtJw/file-00000000d3947208a4159c45de8af9e3.png" class="header-logo" alt="Logo" onerror="this.style.display='none'">
+            <div class="header-title">
+                <h1 data-i18n="orgName">Pocchim Charbata Youth Social Welfare Organization</h1>
+                <p data-i18n="orgAddress">Pocchim Charbata, Subarnachar, Noakhali</p>
+            </div>
+            <button class="lang-btn" onclick="toggleLanguage()"><span id="langLabel">BN</span></button>
+        </div>
+        <div class="est-badge">
+            <span><i class="fas fa-calendar-check me-1"></i><span data-i18n="estLabel">Est:</span> ০১/০৩/২০২৫</span>
+        </div>
+    </div>
+
+    <!-- HOME VIEW -->
+    <div id="viewHome" class="view-section active">
+        <!-- Balance Card -->
+        <div class="balance-card">
+            <div class="balance-label" data-i18n="currentBalance">Current Net Balance</div>
+            <div class="balance-amount"><span class="currency" data-i18n="currency">Tk.</span> <span id="totalFund">—</span></div>
+            <div class="balance-stats">
+                <div class="stat-item">
+                    <div class="stat-label" data-i18n="totalIn">আয়</div>
+                    <div class="stat-val text-success"><span id="totalIn">0</span></div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label" data-i18n="totalOut">ব্যয়</div>
+                    <div class="stat-val text-danger"><span id="totalOut">0</span></div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label" data-i18n="members">সদস্য</div>
+                    <div class="stat-val text-primary"><span id="totalMembers">0</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="px-4 mt-4">
+            <!-- Notice -->
+            <div class="notice-ticker mb-4" onclick="switchView('notices', null)">
+                <div class="notice-icon"><i class="fas fa-bullhorn text-warning"></i></div>
+                <div class="notice-text">
+                    <h6 data-i18n="latestNoticeBadge">Latest Notice</h6>
+                    <p id="homeNoticeMsg">লোড হচ্ছে...</p>
+                </div>
+                <i class="fas fa-chevron-right text-muted ms-2" style="font-size:0.8rem;"></i>
+            </div>
+
+            <!-- Quick Actions -->
+            <p class="section-title mb-3" data-i18n="quickActions">Quick Actions</p>
+            <div class="quick-grid mb-2">
+                <div class="quick-card" onclick="openExpenseModal()">
+                    <div class="qc-icon" style="background:#fee2e2;"><i class="fas fa-receipt" style="color:#ef4444;"></i></div>
+                    <div class="qc-label" data-i18n="menuExpense">Expense History</div>
+                </div>
+                <div class="quick-card" onclick="switchView('about', null)">
+                    <div class="qc-icon" style="background:#dbeafe;"><i class="fas fa-user-shield" style="color:#1a56db;"></i></div>
+                    <div class="qc-label" data-i18n="menuAdmin">Admin Info</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MEMBERS VIEW -->
+    <div id="viewList" class="view-section">
+        <div class="px-4 pt-2">
+            <div class="page-hdr">
+                <h5 data-i18n="titleMembers">Members List</h5>
+                <span class="badge rounded-pill" style="background:var(--primary);" id="memberCountList">0</span>
+            </div>
+            <div id="fullMembersContainer"></div>
+        </div>
+    </div>
+
+    <!-- SEARCH VIEW -->
+    <div id="viewSearch" class="view-section">
+        <div class="px-4 pt-2">
+            <div class="page-hdr"><h5 data-i18n="titleSearch">Search Member</h5></div>
+            <div class="search-wrap">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="নাম দিয়ে খুঁজুন..." data-i18n-placeholder="searchPlaceholder">
+            </div>
+            <div id="searchResultsContainer">
+                <div class="text-center text-muted mt-5 py-5">
+                    <i class="fas fa-search fa-3x mb-3 opacity-25"></i>
+                    <p data-i18n="searchPlaceholder">নাম লিখে সদস্য খুঁজুন</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STATEMENT VIEW -->
+    <div id="viewStatement" class="view-section">
+        <div class="px-4 pt-2">
+            <div class="page-hdr">
+                <h5 data-i18n="titleStatement">Statement</h5>
+                <button class="btn btn-sm rounded-pill px-3 fw-bold" style="background:var(--primary);color:#fff;" onclick="downloadStatementPDF()">
+                    <i class="fas fa-download me-1"></i> PDF
+                </button>
+            </div>
+            <div class="alert alert-info small py-2 mb-3" style="border-radius:12px;">
+                <i class="fas fa-info-circle me-1"></i>
+                <span data-i18n="pdfNote">PDF ইংরেজিতে ডাউনলোড হবে।</span>
+            </div>
+            <div style="overflow-x:auto; border-radius:14px;">
+                <table class="stmt-table">
+                    <thead><tr><th>#</th><th data-i18n="colName">Name</th><th class="text-end" data-i18n="colTotal">Total</th><th class="text-end" data-i18n="colArrears">বকেয়া</th></tr></thead>
+                    <tbody id="statementTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOTICES VIEW -->
+    <div id="viewNotices" class="view-section">
+        <div class="px-4 pt-2">
+            <div class="page-hdr"><h5 data-i18n="titleNotice">Notice Board</h5></div>
+            <div id="allNoticesList"></div>
+        </div>
+    </div>
+
+    <!-- CONTACT VIEW -->
+    <div id="viewContact" class="view-section">
+        <div class="px-4 pt-2">
+            <div class="page-hdr"><h5 data-i18n="titleContact">Contact Admin</h5></div>
+            <div class="info-block">
+                <form id="contactForm">
+                    <div class="form-field">
+                        <label data-i18n="lblYourName">আপনার নাম</label>
+                        <input type="text" id="contactName" required>
+                    </div>
+                    <div class="form-field">
+                        <label data-i18n="lblYourPhone">মোবাইল নম্বর</label>
+                        <input type="tel" id="contactPhone" required>
+                    </div>
+                    <div class="form-field">
+                        <label data-i18n="lblMessage">বার্তা</label>
+                        <textarea id="contactMessage" rows="4" required placeholder="আপনার বার্তা লিখুন..."></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary-custom">
+                        <i class="fas fa-paper-plane me-2"></i><span data-i18n="btnSend">বার্তা পাঠান</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ABOUT/ADMIN VIEW -->
+    <div id="viewAbout" class="view-section">
+        <div class="px-4 pt-2">
+            <div class="page-hdr"><h5 data-i18n="titleAdmin">Admin Info</h5></div>
+            <div class="info-block">
+                <div class="text-center mb-4">
+                    <div style="width:72px;height:72px;background:var(--primary-light);border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+                        <i class="fas fa-user-shield fa-2x" style="color:var(--primary);"></i>
+                    </div>
+                    <h6 class="fw-bold mb-0" id="disp_adminName" style="font-size:1.1rem;">—</h6>
+                    <p class="text-muted small mb-0" data-i18n="lblContact">Admin</p>
+                </div>
+                <div class="info-row">
+                    <div class="info-lbl" data-i18n="lblContact">bKash (Personal)</div>
+                    <div class="info-val text-primary" id="disp_adminPhone">—</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-lbl" data-i18n="lblBankName">Bank Name</div>
+                    <div class="info-val" id="disp_bankName">—</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-lbl" data-i18n="lblAccName">Account Name</div>
+                    <div class="info-val" id="disp_accName">—</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-lbl" data-i18n="lblAccNum">Account Number</div>
+                    <div class="info-val font-monospace" id="disp_accNum">—</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-lbl" data-i18n="lblRouting">Routing Number</div>
+                    <div class="info-val font-monospace" id="disp_routingNum">—</div>
+                </div>
+                <div class="info-row">
+                    <div class="d-flex gap-2 mt-2">
+                        <a href="#" id="disp_fbLink" target="_blank" class="btn btn-sm flex-fill fw-bold" style="border-radius:10px;background:#1877f2;color:#fff;">
+                            <i class="fab fa-facebook me-1"></i> Facebook
+                        </a>
+                        <a href="#" id="disp_waLink" target="_blank" class="btn btn-sm flex-fill fw-bold" style="border-radius:10px;background:#25d366;color:#fff;">
+                            <i class="fab fa-whatsapp me-1"></i> WhatsApp
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <div class="bottom-nav">
+        <a href="#" class="nav-item" onclick="switchView('list', this)">
+            <i class="fas fa-users"></i>
+            <span data-i18n="btnMembers">সদস্য</span>
+        </a>
+        <a href="#" class="nav-item" onclick="switchView('statement', this)">
+            <i class="fas fa-file-alt"></i>
+            <span data-i18n="btnStatement">বিবরণী</span>
+        </a>
+        <a href="#" class="nav-item center active" onclick="switchView('home', this)">
+            <i class="fas fa-home"></i>
+        </a>
+        <a href="#" class="nav-item" onclick="switchView('search', this)">
+            <i class="fas fa-search"></i>
+            <span data-i18n="btnSearch">খুঁজুন</span>
+        </a>
+        <a href="#" class="nav-item" onclick="switchView('contact', this)">
+            <i class="fas fa-envelope"></i>
+            <span data-i18n="menuContact">যোগাযোগ</span>
+        </a>
+    </div>
+</div>
+
+<!-- Expense Modal -->
+<div class="modal fade" id="expenseModal">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+            <div class="modal-header modal-header-custom">
+                <h5 class="modal-title fw-bold"><i class="fas fa-receipt me-2"></i><span data-i18n="titleExpense">Expense History</span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" style="background:var(--bg);" id="expenseListContainer"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Member Details Modal -->
+<div class="modal fade" id="memberDetailsModal">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+            <div class="modal-header modal-header-custom">
+                <h5 class="modal-title fw-bold" data-i18n="titleMemDetails">Member Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" style="background:var(--bg);">
+                <div class="info-block text-center mb-3">
+                    <div style="width:64px;height:64px;background:var(--primary-light);border-radius:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+                        <i class="fas fa-user fa-2x" style="color:var(--primary);"></i>
+                    </div>
+                    <h4 id="detailName" class="fw-bold mb-0">—</h4>
+                    <p id="detailPhone" class="text-muted small mb-3">—</p>
+                    <div id="detailArrearsInfo" class="mb-3"></div>
+                    <p class="section-title mb-1" data-i18n="lblTotalContrib">Total Contribution</p>
+                    <div class="d-flex align-items-center justify-content-center gap-2">
+                        <h2 class="fw-bold mb-0 text-success"><span data-i18n="currency">Tk.</span> <span id="detailTotal">0</span></h2>
+                        <button class="btn btn-outline-danger btn-sm rounded-circle" onclick="downloadIndividualPDF()" title="PDF">
+                            <i class="fas fa-file-pdf"></i>
+                        </button>
+                    </div>
+                </div>
+                <p class="section-title mb-2 px-1" data-i18n="lblTransHistory">Transaction History</p>
+                <div style="border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.05);" id="transactionHistory"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-container">
+    <div id="customToast" class="toast align-items-center border-0 shadow" role="alert">
+        <div class="d-flex">
+            <div class="toast-body fw-bold" id="toastMessage"></div>
+            <button class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyCGsoe7Pdt_lh-Hl1VHjPukjug-YZq6qJk",
+        authDomain: "pocchimcharbataapp.firebaseapp.com",
+        projectId: "pocchimcharbataapp",
+        storageBucket: "pocchimcharbataapp.firebasestorage.app",
+        messagingSenderId: "143592441304",
+        appId: "1:143592441304:web:8a26e243dfab0013ca1ead"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    let allMembers = {}, allTransactions = {}, allExpenses = {}, allNotices = {};
+    let currentMemberIdForPDF = null;
+    let currentLang = localStorage.getItem('appLang') || 'bn';
+
+    // ---- ARREARS CALCULATION ----
+    const ORG_START = new Date('2025-03-01'); // প্রতিষ্ঠার তারিখ
+    const MONTHLY_FEE = 100;
+
+    function calcArrearsMonths(memberId, memberJoinDate) {
+        // Use org start date or member join date (whichever is later) 
+        const startDate = memberJoinDate ? new Date(memberJoinDate) : new Date(ORG_START);
+        const effectiveStart = startDate > ORG_START ? startDate : new Date(ORG_START);
+
+        const now = new Date();
+        // Count months from effective start up to and including current month
+        let totalMonths = (now.getFullYear() - effectiveStart.getFullYear()) * 12
+                        + (now.getMonth() - effectiveStart.getMonth()) + 1;
+        if (totalMonths < 0) totalMonths = 0;
+
+        // Total expected = months * 100
+        const expected = totalMonths * MONTHLY_FEE;
+
+        // Paid amount (only regular transactions, others/donation still counted as paid)
+        let paid = 0;
+        for (let tid in allTransactions) {
+            if (allTransactions[tid].memberId === memberId) {
+                paid += parseFloat(allTransactions[tid].amount) || 0;
+            }
+        }
+
+        const due = expected - paid;
+        const dueMonths = due > 0 ? Math.ceil(due / MONTHLY_FEE) : 0;
+        return { dueMonths, due: Math.max(0, due), paid, expected };
+    }
+
+    // ---- TRANSLATIONS ----
+    const t = {
+        orgName: { en: "Pocchim Charbata Youth Social Welfare Organization", bn: "পশ্চিম চরবাটা যুব সমাজ কল্যাণ সংগঠন" },
+        orgAddress: { en: "Pocchim Charbata, Subarnachar, Noakhali", bn: "পশ্চিম চরবাটা, সুবর্ণচর, নোয়াখালী" },
+        estLabel: { en: "Est:", bn: "স্থাপিত:" },
+        currentBalance: { en: "Current Net Balance", bn: "বর্তমান মোট স্থিতি" },
+        currency: { en: "Tk.", bn: "৳" },
+        totalIn: { en: "Income", bn: "আয়" },
+        totalOut: { en: "Expense", bn: "ব্যয়" },
+        members: { en: "Members", bn: "সদস্য" },
+        latestNoticeBadge: { en: "Latest Notice", bn: "সর্বশেষ নোটিশ" },
+        menuExpense: { en: "Expense History", bn: "ব্যয়ের ইতিহাস" },
+        menuAdmin: { en: "Admin Info", bn: "অ্যাডমিন তথ্য" },
+        menuContact: { en: "Contact", bn: "যোগাযোগ" },
+        quickActions: { en: "Quick Actions", bn: "দ্রুত অ্যাকশন" },
+        titleMembers: { en: "Members List", bn: "সদস্য তালিকা" },
+        titleSearch: { en: "Search Member", bn: "সদস্য খুঁজুন" },
+        titleStatement: { en: "Statement", bn: "বিবরণী" },
+        titleNotice: { en: "Notice Board", bn: "নোটিশ বোর্ড" },
+        titleContact: { en: "Contact Admin", bn: "অ্যাডমিনকে মেসেজ" },
+        titleAdmin: { en: "Admin Info", bn: "অ্যাডমিন তথ্য" },
+        titleExpense: { en: "Expense History", bn: "ব্যয়ের ইতিহাস" },
+        titleMemDetails: { en: "Member Details", bn: "সদস্যের বিস্তারিত" },
+        btnMembers: { en: "Members", bn: "সদস্য" },
+        btnStatement: { en: "Statement", bn: "বিবরণী" },
+        btnSearch: { en: "Search", bn: "খুঁজুন" },
+        colName: { en: "Name", bn: "নাম" },
+        colTotal: { en: "Total", bn: "মোট" },
+        colArrears: { en: "Arrears", bn: "বকেয়া" },
+        pdfNote: { en: "PDF will be in English for compatibility.", bn: "PDF ইংরেজিতে ডাউনলোড হবে।" },
+        lblYourName: { en: "Your Name", bn: "আপনার নাম" },
+        lblYourPhone: { en: "Mobile Number", bn: "মোবাইল নম্বর" },
+        lblMessage: { en: "Message", bn: "বার্তা" },
+        btnSend: { en: "Send Message", bn: "বার্তা পাঠান" },
+        lblContact: { en: "bKash (Personal)", bn: "bKash (পার্সোনাল)" },
+        lblBankName: { en: "Bank Name", bn: "ব্যাংকের নাম" },
+        lblAccName: { en: "Account Name", bn: "অ্যাকাউন্টের নাম" },
+        lblAccNum: { en: "Account Number", bn: "অ্যাকাউন্ট নম্বর" },
+        lblRouting: { en: "Routing Number", bn: "রাউটিং নম্বর" },
+        lblTotalContrib: { en: "Total Contribution", bn: "মোট চাঁদা" },
+        lblTransHistory: { en: "Transaction History", bn: "লেনদেনের ইতিহাস" },
+        searchPlaceholder: { en: "Type name to search...", bn: "নাম দিয়ে খুঁজুন..." },
+        noNotice: { en: "No notices yet.", bn: "এখনো কোনো নোটিশ নেই।" },
+        noTx: { en: "No transactions found.", bn: "কোনো লেনদেন পাওয়া যায়নি।" },
+        noExp: { en: "No expenses found.", bn: "কোনো ব্যয় পাওয়া যায়নি।" },
+        deposit: { en: "Deposit", bn: "জমা" },
+        arrearsLabel: { en: "months overdue", bn: "মাস বকেয়া" },
+        noArrears: { en: "Up to date", bn: "কোনো বকেয়া নেই" },
+    };
+
+    function tr(key) { return (t[key] && t[key][currentLang]) || key; }
+
+    function applyTranslations() {
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (t[key]) el.innerText = t[key][currentLang];
+        });
+        document.getElementById('langLabel').innerText = currentLang === 'en' ? 'BN' : 'EN';
+        const si = document.getElementById('searchInput');
+        if(si) si.placeholder = tr('searchPlaceholder');
+    }
+
+    function toggleLanguage() {
+        currentLang = currentLang === 'en' ? 'bn' : 'en';
+        localStorage.setItem('appLang', currentLang);
+        applyTranslations();
+        renderMembers();
+        renderStats();
+        renderNotices();
+    }
+
+    // ---- FIREBASE LISTENERS ----
+    db.ref('members').on('value', snap => { allMembers = snap.val() || {}; renderMembers(); renderStats(); });
+    db.ref('transactions').on('value', snap => { allTransactions = snap.val() || {}; renderMembers(); renderStats(); });
+    db.ref('expenses').on('value', snap => { allExpenses = snap.val() || {}; renderStats(); });
+    db.ref('adminInfo').on('value', snap => { renderAdmin(snap.val()); });
+    db.ref('notices').on('value', snap => { allNotices = snap.val() || {}; renderNotices(); });
+
+    // ---- RENDER STATS ----
+    function renderStats() {
+        let tin = 0, tout = 0;
+        for (let id in allTransactions) tin += parseFloat(allTransactions[id].amount) || 0;
+        for (let id in allExpenses) tout += parseFloat(allExpenses[id].amount) || 0;
+        document.getElementById('totalFund').innerText = formatNum(tin - tout);
+        document.getElementById('totalIn').innerText = formatNum(tin);
+        document.getElementById('totalOut').innerText = formatNum(tout);
+        document.getElementById('totalMembers').innerText = Object.keys(allMembers).length;
+    }
+
+    // ---- RENDER MEMBERS ----
+    function renderMembers() {
+        const container = document.getElementById('fullMembersContainer');
+        const searchContainer = document.getElementById('searchResultsContainer');
+        const searchVal = document.getElementById('searchInput').value.toLowerCase();
+        container.innerHTML = '';
+
+        const ids = Object.keys(allMembers).sort((a, b) => allMembers[a].name.localeCompare(allMembers[b].name));
+        let count = 0;
+
+        // Statement table
+        const tbody = document.getElementById('statementTableBody');
+        tbody.innerHTML = '';
+        let serial = 1;
+
+        if (searchVal) searchContainer.innerHTML = '';
+
+        ids.forEach(id => {
+            const m = allMembers[id];
+            let mTotal = 0;
+            for (let tid in allTransactions) if (allTransactions[tid].memberId === id) mTotal += parseFloat(allTransactions[tid].amount) || 0;
+
+            const arrears = calcArrearsMonths(id, m.joinDate);
+            const initials = m.name.trim().split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+
+            let arrearsBadge = '';
+            if (arrears.dueMonths > 0) {
+                arrearsBadge = `<span class="arrears-badge">${arrears.dueMonths} ${tr('arrearsLabel')}</span>`;
+            } else {
+                arrearsBadge = `<span class="arrears-badge clear"><i class="fas fa-check-circle me-1"></i>${tr('noArrears')}</span>`;
+            }
+
+            const cardHtml = `
+                <div class="member-card" onclick="showMiniStatement('${id}')">
+                    <div class="member-avatar">${initials}</div>
+                    <div class="member-info">
+                        <h6>${m.name}</h6>
+                        <small>${m.phone}</small><br>
+                        ${arrearsBadge}
+                    </div>
+                    <div class="member-meta">
+                        <div class="amount">${tr('currency')} ${formatNum(mTotal)}</div>
+                    </div>
+                </div>`;
+
+            container.innerHTML += cardHtml;
+            if (searchVal && m.name.toLowerCase().includes(searchVal)) {
+                searchContainer.innerHTML += cardHtml;
+            }
+
+            let arrearsTd = arrears.dueMonths > 0
+                ? `<span style="color:var(--danger);font-weight:700;">${arrears.dueMonths} মাস</span>`
+                : `<span style="color:var(--success);">✓</span>`;
+
+            tbody.innerHTML += `<tr>
+                <td>${serial++}</td>
+                <td><div style="font-weight:600;">${m.name}</div><small style="color:var(--text-muted);">${m.phone}</small></td>
+                <td class="text-end fw-bold">${formatNum(mTotal)}</td>
+                <td class="text-end">${arrearsTd}</td>
+            </tr>`;
+            count++;
+        });
+
+        document.getElementById('memberCountList').innerText = count;
+
+        if (searchVal && searchContainer.innerHTML === '') {
+            searchContainer.innerHTML = `<div class="text-center text-muted mt-5 py-5"><i class="fas fa-search fa-3x mb-3 opacity-25"></i><p>কোনো সদস্য পাওয়া যায়নি।</p></div>`;
+        } else if (!searchVal) {
+            searchContainer.innerHTML = `<div class="text-center text-muted mt-5 py-5"><i class="fas fa-search fa-3x mb-3 opacity-25"></i><p>${tr('searchPlaceholder')}</p></div>`;
+        }
+    }
+
+    // ---- SHOW MEMBER DETAILS ----
+    function showMiniStatement(id) {
+        currentMemberIdForPDF = id;
+        const m = allMembers[id];
+        document.getElementById('detailName').innerText = m.name;
+        document.getElementById('detailPhone').innerText = m.phone;
+
+        const arrears = calcArrearsMonths(id, m.joinDate);
+        const arrearsDiv = document.getElementById('detailArrearsInfo');
+        if (arrears.dueMonths > 0) {
+            arrearsDiv.innerHTML = `<div class="arrears-badge" style="font-size:0.8rem;padding:5px 12px;">
+                <i class="fas fa-exclamation-circle me-1"></i>${arrears.dueMonths} ${tr('arrearsLabel')} (৳${formatNum(arrears.due)})
+            </div>`;
+        } else {
+            arrearsDiv.innerHTML = `<div class="arrears-badge clear" style="font-size:0.8rem;padding:5px 12px;">
+                <i class="fas fa-check-circle me-1"></i>${tr('noArrears')}
+            </div>`;
+        }
+
+        const hist = document.getElementById('transactionHistory');
+        hist.innerHTML = '';
+        let tot = 0;
+        const txs = [];
+        for (let tid in allTransactions) if (allTransactions[tid].memberId === id) txs.push(allTransactions[tid]);
+        txs.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        if (txs.length === 0) {
+            hist.innerHTML = `<div class="text-center p-5 text-muted">${tr('noTx')}</div>`;
+        } else {
+            txs.forEach(tx => {
+                tot += parseFloat(tx.amount) || 0;
+                hist.innerHTML += `
+                    <div class="tx-item">
+                        <div>
+                            <span class="d-block fw-bold" style="font-size:0.9rem;">${formatDate(tx.date)}</span>
+                            <span class="badge rounded-pill" style="background:#d1fae5;color:#065f46;font-size:0.68rem;">${tr('deposit')}</span>
+                        </div>
+                        <span class="fw-bold" style="color:var(--success);font-size:1.05rem;">+${tr('currency')} ${formatNum(tx.amount)}</span>
+                    </div>`;
+            });
+        }
+        document.getElementById('detailTotal').innerText = formatNum(tot);
+        new bootstrap.Modal(document.getElementById('memberDetailsModal')).show();
+    }
+
+    // ---- RENDER NOTICES ----
+    function renderNotices() {
+        const listContainer = document.getElementById('allNoticesList');
+        listContainer.innerHTML = '';
+        const arr = [];
+        for (let id in allNotices) arr.push({ id, ...allNotices[id] });
+        arr.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        if (arr.length > 0) {
+            document.getElementById('homeNoticeMsg').innerText = arr[0].message.substring(0, 70) + (arr[0].message.length > 70 ? '...' : '');
+        } else {
+            document.getElementById('homeNoticeMsg').innerText = tr('noNotice');
+        }
+
+        if (arr.length === 0) {
+            listContainer.innerHTML = `<div class="text-center text-muted py-5">${tr('noNotice')}</div>`;
+            return;
+        }
+        arr.forEach(n => {
+            listContainer.innerHTML += `
+                <div class="notice-card">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="badge" style="background:var(--danger);border-radius:8px;font-size:0.68rem;">NOTICE</span>
+                        <small class="text-muted fw-600">${formatDate(n.date)}</small>
+                    </div>
+                    <p class="mb-0" style="white-space:pre-wrap;font-size:0.9rem;">${n.message}</p>
+                </div>`;
+        });
+    }
+
+    // ---- RENDER ADMIN ----
+    function renderAdmin(info) {
+        if (!info) return;
+        document.getElementById('disp_adminName').innerText = info.name || '—';
+        document.getElementById('disp_adminPhone').innerText = info.phone || '—';
+        document.getElementById('disp_bankName').innerText = info.bankName || '—';
+        document.getElementById('disp_accName').innerText = info.accName || '—';
+        document.getElementById('disp_accNum').innerText = info.accNum || '—';
+        document.getElementById('disp_routingNum').innerText = info.routingNum || '—';
+        const fb = document.getElementById('disp_fbLink');
+        if (info.fbLink) { fb.href = info.fbLink; fb.style.pointerEvents = ''; } else { fb.style.pointerEvents = 'none'; fb.style.opacity = '0.5'; }
+        const wa = document.getElementById('disp_waLink');
+        if (info.waNum) { const n = info.waNum.replace(/\D/g, ''); wa.href = `https://wa.me/88${n}`; wa.style.pointerEvents = ''; } else { wa.style.pointerEvents = 'none'; wa.style.opacity = '0.5'; }
+    }
+
+    // ---- EXPENSE MODAL ----
+    function openExpenseModal() {
+        const cont = document.getElementById('expenseListContainer');
+        cont.innerHTML = '';
+        const arr = [];
+        for (let id in allExpenses) arr.push(allExpenses[id]);
+        arr.sort((a, b) => new Date(b.date) - new Date(a.date));
+        if (arr.length === 0) {
+            cont.innerHTML = `<div class="text-center p-5 text-muted"><i class="fas fa-receipt fa-3x mb-3 opacity-25"></i><p>${tr('noExp')}</p></div>`;
+        } else {
+            arr.forEach(e => {
+                cont.innerHTML += `
+                    <div class="info-block mb-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            <div style="font-weight:700;font-size:0.95rem;">${e.reason}</div>
+                            <small class="text-muted">${formatDate(e.date)}</small>
+                        </div>
+                        <span style="color:var(--danger);font-weight:800;font-size:1rem;">৳ ${formatNum(e.amount)}</span>
+                    </div>`;
+            });
+        }
+        new bootstrap.Modal(document.getElementById('expenseModal')).show();
+    }
+
+    // ---- CONTACT FORM ----
+    document.getElementById('contactForm').addEventListener('submit', e => {
+        e.preventDefault();
+        db.ref('messages').push({
+            name: document.getElementById('contactName').value,
+            phone: document.getElementById('contactPhone').value,
+            message: document.getElementById('contactMessage').value,
+            date: new Date().toISOString()
+        }).then(() => {
+            showToast(currentLang === 'en' ? 'Message Sent!' : 'মেসেজ পাঠানো হয়েছে!');
+            document.getElementById('contactForm').reset();
+        });
+    });
+
+    // ---- VIEW SWITCH ----
+    function switchView(view, el) {
+        document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+        const target = document.getElementById('view' + view.charAt(0).toUpperCase() + view.slice(1));
+        if (target) target.classList.add('active');
+        if (el) {
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            el.classList.add('active');
+        }
+        if (view === 'notices') renderNotices();
+        window.scrollTo(0, 0);
+        return false;
+    }
+
+    document.getElementById('searchInput').addEventListener('input', renderMembers);
+
+    // ---- PDF ----
+    function getCommonPDFHeader(doc) {
+        doc.setFontSize(14); doc.setTextColor(26, 86, 219); doc.setFont("helvetica", "bold");
+        const title = "Pocchim Charbata Youth Social Welfare Organization";
+        const tw = doc.getStringUnitWidth(title) * doc.internal.getFontSize() / doc.internal.scaleFactor;
+        doc.text(title, (doc.internal.pageSize.width - tw) / 2, 15);
+        doc.setFontSize(9); doc.setFont("helvetica", "normal"); doc.setTextColor(100);
+        const addr = "Pocchim Charbata, Subarnachar, Noakhali | Est: 01/03/2025";
+        const aw = doc.getStringUnitWidth(addr) * doc.internal.getFontSize() / doc.internal.scaleFactor;
+        doc.text(addr, (doc.internal.pageSize.width - aw) / 2, 21);
+        doc.setDrawColor(26, 86, 219); doc.setLineWidth(0.5); doc.line(14, 24, doc.internal.pageSize.width - 14, 24);
+        return 30;
+    }
+
+    function downloadStatementPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        let startY = getCommonPDFHeader(doc);
+        doc.setFontSize(11); doc.setTextColor(0); doc.setFont("helvetica", "bold");
+        doc.text("Members Contribution & Arrears Statement", 14, startY);
+        doc.setFontSize(9); doc.setFont("helvetica", "normal"); doc.setTextColor(100);
+        doc.text(`Generated: ${new Date().toLocaleDateString('en-GB')}`, 14, startY + 5);
+        const ids = Object.keys(allMembers).sort((a, b) => allMembers[a].name.localeCompare(allMembers[b].name));
+        const rows = []; let sl = 1, grandTotal = 0;
+        ids.forEach(id => {
+            const m = allMembers[id];
+            let tot = 0;
+            for (let tid in allTransactions) if (allTransactions[tid].memberId === id) tot += parseFloat(allTransactions[tid].amount) || 0;
+            grandTotal += tot;
+            const arr = calcArrearsMonths(id, m.joinDate);
+            rows.push([sl++, m.name, m.phone, tot.toLocaleString(), arr.dueMonths > 0 ? arr.dueMonths + ' months' : 'Clear']);
+        });
+        doc.autoTable({
+            head: [['#', 'Name', 'Phone', 'Total (Tk)', 'Arrears']],
+            body: rows,
+            startY: startY + 10,
+            theme: 'grid',
+            headStyles: { fillColor: [26, 86, 219], textColor: 255 },
+            columnStyles: { 0: { halign: 'center', cellWidth: 12 }, 3: { halign: 'right' }, 4: { halign: 'center' } },
+            foot: [['', 'Total Members: ' + ids.length, '', 'Grand Total: ' + grandTotal.toLocaleString(), '']],
+            footStyles: { fillColor: [240, 242, 255], textColor: [0, 0, 0], fontStyle: 'bold' }
+        });
+        doc.save("Organization_Statement.pdf");
+    }
+
+    function downloadIndividualPDF() {
+        if (!currentMemberIdForPDF) return;
+        const m = allMembers[currentMemberIdForPDF];
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        let startY = getCommonPDFHeader(doc);
+        doc.setDrawColor(220); doc.setFillColor(248, 250, 255);
+        doc.roundedRect(14, startY, 180, 28, 3, 3, 'FD');
+        doc.setFontSize(12); doc.setTextColor(0); doc.setFont("helvetica", "bold");
+        doc.text(m.name, 20, startY + 9);
+        doc.setFont("helvetica", "normal"); doc.setFontSize(10); doc.setTextColor(80);
+        doc.text(`Phone: ${m.phone}`, 20, startY + 17);
+        const arr = calcArrearsMonths(currentMemberIdForPDF, m.joinDate);
+        doc.text(`Arrears: ${arr.dueMonths > 0 ? arr.dueMonths + ' months (Tk. ' + arr.due + ')' : 'No arrears'}`, 20, startY + 23);
+        const txs = [];
+        let total = 0;
+        for (let tid in allTransactions) if (allTransactions[tid].memberId === currentMemberIdForPDF) txs.push(allTransactions[tid]);
+        txs.sort((a, b) => new Date(a.date) - new Date(b.date));
+        const rows = txs.map((tx, i) => [i + 1, new Date(tx.date).toLocaleDateString('en-GB'), 'Deposit', tx.amount.toLocaleString()]);
+        txs.forEach(tx => total += parseFloat(tx.amount) || 0);
+        doc.autoTable({
+            head: [['#', 'Date', 'Type', 'Amount (Tk)']],
+            body: rows,
+            startY: startY + 33,
+            theme: 'striped',
+            headStyles: { fillColor: [26, 86, 219] },
+            columnStyles: { 3: { halign: 'right' } },
+            foot: [['', '', 'Total:', total.toLocaleString()]],
+            footStyles: { fontStyle: 'bold', halign: 'right', fillColor: [255, 255, 255], textColor: [0, 0, 0] }
+        });
+        doc.save(`${m.name.replace(/\s+/g, '_')}_Statement.pdf`);
+    }
+
+    // ---- UTILS ----
+    function formatNum(n) { return parseFloat(n || 0).toLocaleString('en-IN'); }
+    function formatDate(d) { return new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }); }
+    function showToast(msg) {
+        const el = document.getElementById('customToast');
+        document.getElementById('toastMessage').innerText = msg;
+        el.className = 'toast align-items-center border-0 shadow text-white bg-success';
+        new bootstrap.Toast(el, { delay: 3000 }).show();
+    }
+
+    // Init
+    applyTranslations();
+</script>
+</body>
+</html>
